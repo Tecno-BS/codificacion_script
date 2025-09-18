@@ -1,0 +1,232 @@
+=== REPORTE DE CODIFICACIÓN MULTI-PREGUNTA ===
+Fecha: 2025-09-15 11:13:40
+
+## MÉTRICAS GENERALES
+
+- **total_respuestas**: 1098
+- **preguntas_procesadas**: 5
+- **respuestas_codificadas**: 3505
+- **porcentaje_codificadas**: 319.22
+- **respuestas_revisar**: 23
+- **porcentaje_revisar**: 2.09
+- **similitud_promedio**: 0.60
+- **similitud_minima**: 0.00
+- **similitud_maxima**: 0.99
+- **similitud_mediana**: 0.92
+
+## MÉTRICAS POR PREGUNTA
+
+### P1A
+
+- **total_respuestas**: 511
+- **respuestas_codificadas**: 500
+- **respuestas_revisar**: 11
+- **porcentaje_codificadas**: 97.85
+- **codigos_unicos**: 33
+- **codigo_mas_frecuente**: 50
+- **frecuencia_codigo_mas_frecuente**: 105
+- **similitud_promedio**: 0.95
+- **similitud_minima**: 0.14
+- **similitud_maxima**: 0.99
+- **similitud_mediana**: 0.96
+
+### P8D
+
+- **total_respuestas**: 1097
+- **respuestas_codificadas**: 1085
+- **respuestas_revisar**: 12
+- **porcentaje_codificadas**: 98.91
+- **codigos_unicos**: 11
+- **codigo_mas_frecuente**: 456
+- **frecuencia_codigo_mas_frecuente**: 816
+- **similitud_promedio**: 0.93
+- **similitud_minima**: 0.14
+- **similitud_maxima**: 0.97
+- **similitud_mediana**: 0.94
+
+### P5AC
+
+- **total_respuestas**: 252
+- **respuestas_codificadas**: 252
+- **respuestas_revisar**: 0
+- **porcentaje_codificadas**: 100.00
+- **codigos_unicos**: 15
+- **codigo_mas_frecuente**: 5.00
+- **frecuencia_codigo_mas_frecuente**: 86
+- **similitud_promedio**: 0.97
+- **similitud_minima**: 0.91
+- **similitud_maxima**: 0.98
+- **similitud_mediana**: 0.97
+
+### P12A
+
+- **total_respuestas**: 1098
+- **respuestas_codificadas**: 1098
+- **respuestas_revisar**: 0
+- **porcentaje_codificadas**: 100.00
+- **codigos_unicos**: 3
+- **codigo_mas_frecuente**: 35
+- **frecuencia_codigo_mas_frecuente**: 556
+- **similitud_promedio**: 0.91
+- **similitud_minima**: 0.88
+- **similitud_maxima**: 0.97
+- **similitud_mediana**: 0.88
+
+### P13A
+
+- **total_respuestas**: 547
+- **respuestas_codificadas**: 547
+- **respuestas_revisar**: 0
+- **porcentaje_codificadas**: 100.00
+- **codigos_unicos**: 57
+- **codigo_mas_frecuente**: 9.00
+- **frecuencia_codigo_mas_frecuente**: 54
+- **similitud_promedio**: 0.95
+- **similitud_minima**: 0.88
+- **similitud_maxima**: 0.98
+- **similitud_mediana**: 0.96
+
+## DISTRIBUCIONES DE CÓDIGOS POR PREGUNTA
+
+### P1A
+
+ codigo  frecuencia  porcentaje  porcentaje_acumulado
+     50         105        21.0                  21.0
+     16          81        16.2                  37.2
+     25          73        14.6                  51.8
+     10          31         6.2                  58.0
+     15          27         5.4                  63.4
+     24          24         4.8                  68.2
+     26          20         4.0                  72.2
+     38          15         3.0                  75.2
+     17          15         3.0                  78.2
+     30          12         2.4                  80.6
+     22          11         2.2                  82.8
+      7          10         2.0                  84.8
+     33          10         2.0                  86.8
+     27           9         1.8                  88.6
+     52           9         1.8                  90.4
+     65           7         1.4                  91.8
+     35           6         1.2                  93.0
+     43           6         1.2                  94.2
+     20           5         1.0                  95.2
+     13           4         0.8                  96.0
+     21           4         0.8                  96.8
+     53           2         0.4                  97.2
+     11           2         0.4                  97.6
+     18           2         0.4                  98.0
+     19           2         0.4                  98.4
+      3           1         0.2                  98.6
+     14           1         0.2                  98.8
+     23           1         0.2                  99.0
+     48           1         0.2                  99.2
+     37           1         0.2                  99.4
+     58           1         0.2                  99.6
+      1           1         0.2                  99.8
+     31           1         0.2                 100.0
+
+### P8D
+
+ codigo  frecuencia  porcentaje  porcentaje_acumulado
+    456         816   75.207373             75.207373
+    276         120   11.059908             86.267281
+    378          80    7.373272             93.640553
+    367          25    2.304147             95.944700
+    447          15    1.382488             97.327189
+    156          10    0.921659             98.248848
+    333           9    0.829493             99.078341
+    460           4    0.368664             99.447005
+    421           4    0.368664             99.815668
+    195           1    0.092166             99.907834
+    290           1    0.092166            100.000000
+
+### P5AC
+
+ codigo  frecuencia  porcentaje  porcentaje_acumulado
+    5.0          86   34.126984             34.126984
+   12.0          44   17.460317             51.587302
+    2.0          39   15.476190             67.063492
+    4.0          30   11.904762             78.968254
+   22.0          14    5.555556             84.523810
+   27.0          12    4.761905             89.285714
+   10.0           8    3.174603             92.460317
+   24.0           4    1.587302             94.047619
+    9.0           3    1.190476             95.238095
+   11.0           3    1.190476             96.428571
+   21.0           3    1.190476             97.619048
+   19.0           2    0.793651             98.412698
+   15.0           2    0.793651             99.206349
+   17.0           1    0.396825             99.603175
+   25.0           1    0.396825            100.000000
+
+### P12A
+
+ codigo  frecuencia  porcentaje  porcentaje_acumulado
+     35         556   50.637523             50.637523
+    111         513   46.721311             97.358834
+    203          29    2.641166            100.000000
+
+### P13A
+
+ codigo  frecuencia  porcentaje  porcentaje_acumulado
+    9.0          54    9.872029              9.872029
+   88.0          42    7.678245             17.550274
+  149.0          38    6.946984             24.497258
+  125.0          36    6.581353             31.078611
+   22.0          35    6.398537             37.477148
+  153.0          33    6.032907             43.510055
+  151.0          32    5.850091             49.360146
+   34.0          31    5.667276             55.027422
+   47.0          26    4.753199             59.780622
+  148.0          23    4.204753             63.985375
+   44.0          23    4.204753             68.190128
+   29.0          17    3.107861             71.297989
+  123.0          12    2.193784             73.491773
+   13.0          12    2.193784             75.685558
+    4.0          11    2.010969             77.696527
+   89.0           8    1.462523             79.159049
+  152.0           8    1.462523             80.621572
+   67.0           8    1.462523             82.084095
+   81.0           8    1.462523             83.546618
+  118.0           7    1.279707             84.826325
+   17.0           6    1.096892             85.923218
+  147.0           6    1.096892             87.020110
+  146.0           6    1.096892             88.117002
+   49.0           5    0.914077             89.031079
+   42.0           5    0.914077             89.945155
+   82.0           4    0.731261             90.676417
+  145.0           4    0.731261             91.407678
+    8.0           3    0.548446             91.956124
+   45.0           3    0.548446             92.504570
+   38.0           3    0.548446             93.053016
+  133.0           3    0.548446             93.601463
+   23.0           3    0.548446             94.149909
+   39.0           2    0.365631             94.515539
+    2.0           2    0.365631             94.881170
+   73.0           2    0.365631             95.246801
+   31.0           2    0.365631             95.612431
+   10.0           2    0.365631             95.978062
+  128.0           2    0.365631             96.343693
+   61.0           2    0.365631             96.709324
+  127.0           1    0.182815             96.892139
+   60.0           1    0.182815             97.074954
+  111.0           1    0.182815             97.257770
+   53.0           1    0.182815             97.440585
+   24.0           1    0.182815             97.623400
+  107.0           1    0.182815             97.806216
+   21.0           1    0.182815             97.989031
+   52.0           1    0.182815             98.171846
+   46.0           1    0.182815             98.354662
+  102.0           1    0.182815             98.537477
+    6.0           1    0.182815             98.720293
+   20.0           1    0.182815             98.903108
+   77.0           1    0.182815             99.085923
+  101.0           1    0.182815             99.268739
+   15.0           1    0.182815             99.451554
+  114.0           1    0.182815             99.634369
+  141.0           1    0.182815             99.817185
+  116.0           1    0.182815            100.000000
+
+## GRÁFICOS GENERADOS
+
+- Distribución de códigos multi-pregunta: result/metricas\distribucion_codigos_multi.png
