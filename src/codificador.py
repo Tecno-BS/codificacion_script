@@ -4,12 +4,11 @@ from typing import Dict, List, Tuple, Optional
 import warnings
 warnings.filterwarnings('ignore')
 
-
 import os
 from pathlib import Path
-from .config import * 
-from .utils import *
-from .embeddings import GenerateEmebeddings
+from config import * 
+from utils import *
+from embeddings import GenerateEmebeddings
 
 class SemanticCoder:
     def __init__(self):
@@ -186,7 +185,7 @@ class SemanticCoder:
                     # Asignar código si supera umbral
                     if similitud >= UMBRAL_SIMILITUD:
                         codigo = df_codigos.iloc[codigo_idx]['codigo']
-                        resultados.at[idx, f'{pregunta}_codigo'] = codigo
+                        resultados.at[idx, f'{pregunta}_codigo'] = str(codigo)
                         resultados.at[idx, f'{pregunta}_similitud'] = similitud
                     else:
                         # Marcar para revisión manual
@@ -194,9 +193,39 @@ class SemanticCoder:
                         resultados.at[idx, f'{pregunta}_similitud'] = similitud
             
             print(f"Codificación completada para {pregunta}")
-        
+
         print("\n=== CODIFICACIÓN COMPLETADA ===")
-        return resultados
+        return self.filtrar_columnas_para_exportar(resultados)
+    
+    def filtrar_columnas_para_exportar(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Columnas originales de preguntas (tal como vienen en el Excel)
+        columnas_originales = list(self.mapeo_columnas.keys())
+
+        # Sus versiones limpias
+        columnas_limpias = [f"{col}_limpio" for col in columnas_originales if f"{col}_limpio" in df.columns]
+
+        # Columnas de resultados por pregunta
+        columnas_resultados = []
+        for _, pregunta in self.mapeo_columnas.items():
+            for suf in ["_codigo", "_similitud", "_candidatos"]:
+                col = f"{pregunta}{suf}"
+                if col in df.columns:
+                    columnas_resultados.append(col)
+
+        # “Todo lo demás”: columnas que no sean originales ni marcadas como “_limpio” de otras cosas
+        columnas_excluir = set(columnas_originales)
+        columnas_incluir_otros = [c for c in df.columns if c not in columnas_excluir]
+
+        # Orden sugerido: otros -> limpias -> resultados
+        columnas_finales = []
+        columnas_finales.extend([c for c in columnas_incluir_otros if c not in columnas_limpias + columnas_resultados])
+        columnas_finales.extend(columnas_limpias)
+        columnas_finales.extend(columnas_resultados)
+
+        # Evita KeyError si algo faltara
+        columnas_finales = [c for c in columnas_finales if c in df.columns]
+
+        return df[columnas_finales]
 
     def process_responses(self, ruta_respuestas: str) -> bool:
         """
@@ -257,7 +286,7 @@ class SemanticCoder:
         resultados['preparado_para_gpt'] = True
         
         print("Respuestas preparadas para codificación con GPT")
-        return resultados
+        return self.filtrar_columnas_para_exportar(resultados)
 
     def ejecutar_codificacion(self, ruta_respuestas: str, ruta_codigos: Optional[str] = None) -> pd.DataFrame:
         """

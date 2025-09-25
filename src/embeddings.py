@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import List, Tuple, Optional
 import warnings
-from .config import EMBEDDING_MODEL
+from config import EMBEDDING_MODEL
 warnings.filterwarnings("ignore")
 
 

@@ -15,15 +15,15 @@ Módulos principales:
 """
 
 # Importar clases principales
-from .codificador import SemanticCoder
-from .evaluador import EvaluatorCodification
-from .embeddings import GenerateEmbeddings
+from codificador import SemanticCoder
+from evaluador import EvaluatorCodification
+from embeddings import GenerateEmbeddings
 
 # Importar configuraciones
-from .config import *
+from config import *
 
 # Importar funciones auxiliares
-from .utils import (
+from utils import (
     clean_text,
     load_data,
     save_data,

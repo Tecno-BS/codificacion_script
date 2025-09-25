@@ -6,8 +6,8 @@ from typing import Dict, List, Optional, Tuple
 import os
 from pathlib import Path
 
-from .config import *
-from .utils import load_data
+from config import *
+from utils import load_data
 
 
 class EvaluadorCodificacion:

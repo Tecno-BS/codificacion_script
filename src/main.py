@@ -5,10 +5,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict
 
-from .config import *
-from .codificador import SemanticCoder
-from .evaluador import EvaluadorCodificacion
-from .utils import verify_codes 
+from config import *
+from codificador import SemanticCoder
+from evaluador import EvaluadorCodificacion
+from utils import verify_codes 
 
 def configurar_argumentos():
     parser = argparse.ArgumentParser(
