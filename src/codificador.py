@@ -4,11 +4,24 @@ from typing import Dict, List, Tuple, Optional
 import warnings
 warnings.filterwarnings('ignore')
 
+#GPT
+import asyncio
+from sklearn.metrics.pairwise import cosine_similarity
+
+
 import os
 from pathlib import Path
 from config import * 
 from utils import *
 from embeddings import GenerateEmebeddings
+
+if USE_GPT_MOCK:
+    from gpt_agent_mock import GptCodificadorMock as GptCodificador, ItemGPT, ResultadoGPT
+    print("🤖 Usando GPT Mock para desarrollo")
+else:
+    from gpt_agent import GptCodificador, ItemGPT, ResultadoGPT
+    print("⚠️ Usando GPT Real (consumirá créditos)")
+
 
 class SemanticCoder:
     def __init__(self):
@@ -126,7 +139,7 @@ class SemanticCoder:
     
     def codificar_todas_preguntas(self) -> pd.DataFrame:
         """
-        Codifica respuestas de todas las preguntas
+        Codifica respuestas de todas las preguntas con multicodificación y auxiliares
         """
         if not self.history_codes or len(self.history_codes) == 0 or not self.codes_embeddings or len(self.codes_embeddings) == 0:
             raise ValueError("Debe cargar códigos anteriores primero")
@@ -137,6 +150,13 @@ class SemanticCoder:
         resultados = self.respuestas_procesadas.copy()
         
         print("=== INICIANDO CODIFICACIÓN DE TODAS LAS PREGUNTAS ===")
+        
+        # Inicializar agente GPT
+        gpt_agente = GptCodificador()
+        contexto_proyecto = {
+            "objetivo": "Codificación de respuestas abiertas",
+            "target": "Encuestados"
+        }
         
         for columna, pregunta in self.mapeo_columnas.items():
             print(f"\n--- Procesando {pregunta} ---")
@@ -155,77 +175,210 @@ class SemanticCoder:
             resultados[f'{pregunta}_candidatos'] = None
             
             # Obtener datos de esta pregunta
-            df_codigos = self.history_codes[pregunta]
+            df_codigos = self.history_codes[pregunta].copy()
             embeddings_codigos = self.codes_embeddings[pregunta]
-            embeddings_respuestas = self.embeddings_respuestas[pregunta]
             
             # Codificar cada respuesta
             respuestas_validas = resultados[resultados[f'{columna}_limpio'].str.len() > 0]
             
+            # Recolectar items para GPT
+            items_gpt = []
+            
             for idx, row in respuestas_validas.iterrows():
                 # Obtener índice del embedding
                 idx_embedding = respuestas_validas.index.get_loc(idx)
-                embedding_respuesta = embeddings_respuestas[idx_embedding]
+                embedding_respuesta = self.embeddings_respuestas[pregunta][idx_embedding]
                 
-                # Encontrar códigos similares
-                candidatos = self.generate_embeddings.find_similaritys(
-                    embedding_respuesta,
-                    embeddings_codigos,
-                    top_k=TOP_CANDIDATOS
-                )
-
-                # Guardar candidatos
-                resultados.at[idx, f'{pregunta}_candidatos'] = str(candidatos)
-
-                # Verificar si hay candidatos (cambiar esta línea)
-                if len(candidatos) > 0:  # ← SOLUCIÓN: usar len() en lugar de comparación directa
-                    mejor_candidato = candidatos[0]
-                    codigo_idx, similitud = mejor_candidato
+                # Filtrar por auxiliar si corresponde
+                df_codigos_filtrado = df_codigos
+                embeddings_filtrados = embeddings_codigos
+                auxiliar_detectado = None
+                
+                if pregunta in AUXILIARES_POR_PREGUNTA:
+                    col_aux = AUXILIARES_POR_PREGUNTA[pregunta]["col_aux"]
+                    if f"{col_aux}_limpio" in resultados.columns:
+                        aux_val = str(resultados.at[idx, f"{col_aux}_limpio"]).strip()
+                        if aux_val:
+                            aux_norm = AUXILIARES_CANONICOS.get(aux_val.lower(), aux_val.lower())
+                            auxiliar_detectado = aux_norm
+                            
+                            if "auxiliar" in df_codigos.columns:
+                                mask = df_codigos["auxiliar"].fillna("").str.lower().eq(aux_norm)
+                                if mask.any():
+                                    df_codigos_filtrado = df_codigos[mask].reset_index(drop=True)
+                                    if not df_codigos_filtrado.empty:
+                                        embeddings_filtrados = self.generate_embeddings.generate_embeddings(df_codigos_filtrado["descripcion"].tolist())
+                                    else:
+                                        # Si no hay códigos que coincidan con el auxiliar, usar todos
+                                        df_codigos_filtrado = df_codigos
+                                        embeddings_filtrados = embeddings_codigos
+                
+                # Validar que embeddings_filtrados no esté vacío
+                if len(embeddings_filtrados) == 0:
+                    print(f"Advertencia: No hay embeddings para {pregunta}, saltando respuesta {idx}")
+                    resultados.at[idx, f"{pregunta}_codigo"] = "SIN_EMBEDDINGS"
+                    resultados.at[idx, f"{pregunta}_similitud"] = 0.0
+                    continue
+                
+                # Calcular similitudes
+                sims = cosine_similarity(
+                    embedding_respuesta.reshape(1, -1),
+                    embeddings_filtrados
+                )[0]
+                
+                # 1) Candidatos "sólidos" para multicodificación
+                indices_solidos = np.where(sims >= UMBRAL_MULTICODIGO)[0]
+                indices_orden = indices_solidos[np.argsort(sims[indices_solidos])[::-1]]
+                
+                codigos_asignados = []
+                similitudes_asignadas = []
+                
+                for j in indices_orden[:MAX_CODIGOS]:
+                    codigo = str(df_codigos_filtrado.iloc[j]["codigo"])
+                    codigos_asignados.append(codigo)
+                    similitudes_asignadas.append(float(sims[j]))
+                
+                if codigos_asignados:
+                    # Asignación automática múltiple
+                    resultados.at[idx, f"{pregunta}_codigo"] = SEPARADOR_CODIGOS.join(codigos_asignados)
+                    resultados.at[idx, f"{pregunta}_similitud"] = max(similitudes_asignadas)
+                    resultados.at[idx, f"{pregunta}_candidatos"] = str([(cod, sim) for cod, sim in zip(codigos_asignados, similitudes_asignadas)])
+                else:
+                    # 2) Fallback: un solo código si supera umbral normal
+                    j = int(np.argmax(sims))
+                    mejor_sim = float(sims[j])
                     
-                    # Asignar código si supera umbral
-                    if similitud >= UMBRAL_SIMILITUD:
-                        codigo = df_codigos.iloc[codigo_idx]['codigo']
-                        resultados.at[idx, f'{pregunta}_codigo'] = str(codigo)
-                        resultados.at[idx, f'{pregunta}_similitud'] = similitud
+                    if mejor_sim >= UMBRAL_SIMILITUD:
+                        resultados.at[idx, f"{pregunta}_codigo"] = str(df_codigos_filtrado.iloc[j]["codigo"])
+                        resultados.at[idx, f"{pregunta}_similitud"] = mejor_sim
+                        resultados.at[idx, f"{pregunta}_candidatos"] = str([(str(df_codigos_filtrado.iloc[j]["codigo"]), mejor_sim)])
                     else:
-                        # Marcar para revisión manual
-                        resultados.at[idx, f'{pregunta}_codigo'] = 'REVISAR'
-                        resultados.at[idx, f'{pregunta}_similitud'] = similitud
+                        # 3) Marcar para GPT
+                        resultados.at[idx, f"{pregunta}_codigo"] = "REVISAR"
+                        resultados.at[idx, f"{pregunta}_similitud"] = mejor_sim
+                        
+                        # Preparar candidatos para GPT
+                        top_k_indices = np.argsort(sims)[::-1][:GPT_TOP_K]
+                        candidatos_gpt = []
+                        for k in top_k_indices:
+                            candidatos_gpt.append({
+                                "codigo": str(df_codigos_filtrado.iloc[k]["codigo"]),
+                                "descripcion": str(df_codigos_filtrado.iloc[k]["descripcion"]),
+                                "similitud": float(sims[k])
+                            })
+                        
+                        items_gpt.append(ItemGPT(
+                            id_respuesta=str(idx),
+                            pregunta=pregunta,
+                            texto=row[f'{columna}_limpio'],
+                            candidatos=candidatos_gpt,
+                            auxiliar=auxiliar_detectado
+                        ))
+            
+            # Procesar items con GPT
+            if items_gpt:
+                print(f"Enviando {len(items_gpt)} respuestas a GPT...")
+                resultados_gpt = asyncio.run(gpt_agente.codificar_lote(items_gpt, contexto_proyecto))
+                
+                # Aplicar resultados de GPT
+                for resultado in resultados_gpt:
+                    idx = int(resultado.id_respuesta)
+                    decision = resultado.raw.get("decision", "rechazar")
+                    
+                    if decision == "asignar":
+                        codigos = resultado.raw.get("codigos_asignados", [])
+                        if codigos:
+                            resultados.at[idx, f"{pregunta}_codigo"] = SEPARADOR_CODIGOS.join(codigos)
+                            resultados.at[idx, f"{pregunta}_similitud"] = 1.0  # Marcador de GPT
+                    elif decision == "nuevo":
+                        propuesta = resultado.raw.get("propuesta_codigo_nuevo", {})
+                        if propuesta:
+                            nuevo_codigo = f"NUEVO_{propuesta.get('codigo_sugerido', 'UNKNOWN')}"
+                            resultados.at[idx, f"{pregunta}_codigo"] = nuevo_codigo
+                            resultados.at[idx, f"{pregunta}_similitud"] = 1.0
+                            
+                            # Guardar propuesta para revisión
+                            self._guardar_propuesta_nueva(pregunta, propuesta)
             
             print(f"Codificación completada para {pregunta}")
-
+            if items_gpt:
+                print(f"Costo GPT estimado: ${gpt_agente.costo_total:.4f}")
+        
         print("\n=== CODIFICACIÓN COMPLETADA ===")
+        gpt_agente.guardar_cache()
         return self.filtrar_columnas_para_exportar(resultados)
-    
+
+    def _guardar_propuesta_nueva(self, pregunta: str, propuesta: Dict[str, str]):
+        """Guarda propuesta de nuevo código para revisión"""
+        try:
+            ruta_propuestas = "result/modelos/catalogo_propuestos.xlsx"
+            os.makedirs(os.path.dirname(ruta_propuestas), exist_ok=True)
+            
+            nueva_propuesta = {
+                "pregunta": pregunta,
+                "codigo_propuesto": propuesta.get("codigo_sugerido", ""),
+                "descripcion": propuesta.get("descripcion", ""),
+                "fecha": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "estado": "pendiente"
+            }
+            
+            if os.path.exists(ruta_propuestas):
+                df_existente = pd.read_excel(ruta_propuestas)
+                df_nuevo = pd.concat([df_existente, pd.DataFrame([nueva_propuesta])], ignore_index=True)
+            else:
+                df_nuevo = pd.DataFrame([nueva_propuesta])
+            
+            df_nuevo.to_excel(ruta_propuestas, index=False)
+            
+        except Exception as e:
+            print(f"Error al guardar propuesta: {e}")
+
+
     def filtrar_columnas_para_exportar(self, df: pd.DataFrame) -> pd.DataFrame:
-        # Columnas originales de preguntas (tal como vienen en el Excel)
-        columnas_originales = list(self.mapeo_columnas.keys())
+        try:
+            # Validar que el DataFrame no esté vacío
+            if df is None or len(df) == 0:
+                print("Advertencia: DataFrame vacío, retornando DataFrame vacío")
+                return pd.DataFrame()
+            
+            # Columnas originales de preguntas (tal como vienen en el Excel)
+            columnas_originales = list(self.mapeo_columnas.keys()) if self.mapeo_columnas else []
 
-        # Sus versiones limpias
-        columnas_limpias = [f"{col}_limpio" for col in columnas_originales if f"{col}_limpio" in df.columns]
+            # Sus versiones limpias
+            columnas_limpias = [f"{col}_limpio" for col in columnas_originales if f"{col}_limpio" in df.columns]
 
-        # Columnas de resultados por pregunta
-        columnas_resultados = []
-        for _, pregunta in self.mapeo_columnas.items():
-            for suf in ["_codigo", "_similitud", "_candidatos"]:
-                col = f"{pregunta}{suf}"
-                if col in df.columns:
-                    columnas_resultados.append(col)
+            # Columnas de resultados por pregunta
+            columnas_resultados = []
+            for _, pregunta in self.mapeo_columnas.items():
+                for suf in ["_codigo", "_similitud", "_candidatos"]:
+                    col = f"{pregunta}{suf}"
+                    if col in df.columns:
+                        columnas_resultados.append(col)
 
-        # “Todo lo demás”: columnas que no sean originales ni marcadas como “_limpio” de otras cosas
-        columnas_excluir = set(columnas_originales)
-        columnas_incluir_otros = [c for c in df.columns if c not in columnas_excluir]
+            # "Todo lo demás": columnas que no sean originales ni marcadas como "_limpio" de otras cosas
+            columnas_excluir = set(columnas_originales)
+            columnas_incluir_otros = [c for c in df.columns if c not in columnas_excluir]
 
-        # Orden sugerido: otros -> limpias -> resultados
-        columnas_finales = []
-        columnas_finales.extend([c for c in columnas_incluir_otros if c not in columnas_limpias + columnas_resultados])
-        columnas_finales.extend(columnas_limpias)
-        columnas_finales.extend(columnas_resultados)
+            # Orden sugerido: otros -> limpias -> resultados
+            columnas_finales = []
+            columnas_finales.extend([c for c in columnas_incluir_otros if c not in columnas_limpias + columnas_resultados])
+            columnas_finales.extend(columnas_limpias)
+            columnas_finales.extend(columnas_resultados)
 
-        # Evita KeyError si algo faltara
-        columnas_finales = [c for c in columnas_finales if c in df.columns]
+            # Evita KeyError si algo faltara
+            columnas_finales = [c for c in columnas_finales if c in df.columns]
+            
+            # Si no hay columnas finales, retornar el DataFrame original
+            if not columnas_finales:
+                print("Advertencia: No se encontraron columnas para exportar, retornando DataFrame original")
+                return df
 
-        return df[columnas_finales]
+            print(f"Exportando {len(columnas_finales)} columnas: {columnas_finales[:5]}...")
+            return df[columnas_finales]
+            
+        except Exception as e:
+            print(f"Error al filtrar columnas: {e}")
+            return df
 
     def process_responses(self, ruta_respuestas: str) -> bool:
         """
@@ -252,6 +405,11 @@ class SemanticCoder:
                 
                 # Limpiar textos de esta columna
                 respuestas_procesadas[f'{columna}_limpio'] = respuestas_procesadas[columna].fillna('').apply(clean_text)
+                
+                if pregunta in AUXILIARES_POR_PREGUNTA:
+                    col_aux = AUXILIARES_POR_PREGUNTA[pregunta]["col_aux"]
+                    if col_aux in respuestas_procesadas.columns:
+                        respuestas_procesadas[f"{col_aux}_limpio"] = respuestas_procesadas[col_aux].fillna("").apply(clean_text)
                 
                 # Filtrar respuestas válidas
                 respuestas_validas = respuestas_procesadas[respuestas_procesadas[f'{columna}_limpio'].str.len() > 0]
@@ -310,8 +468,29 @@ class SemanticCoder:
         return self.codificar_sin_historicos()
 
     def guardar_resultados(self, resultados: pd.DataFrame, ruta: str) -> None:
-        save_data(resultados, ruta)
-        print(f"Resultados guardados en {ruta}")
+        try:
+            print(f"Guardando resultados: {len(resultados)} filas, {len(resultados.columns)} columnas")
+            print(f"Tipos de columnas: {resultados.dtypes.value_counts()}")
+            
+            # Verificar que no haya valores problemáticos
+            for col in resultados.columns:
+                if resultados[col].dtype == 'object':
+                    # Verificar si hay valores que no sean strings
+                    non_string_mask = ~resultados[col].astype(str).str.match(r'^[a-zA-Z0-9\s\-_\.]+$', na=False)
+                    if non_string_mask.any():
+                        print(f"Advertencia: Columna {col} tiene valores no estándar")
+                        # Convertir a string para evitar problemas
+                        resultados[col] = resultados[col].astype(str)
+            
+            save_data(resultados, ruta)
+            print(f"Resultados guardados exitosamente en {ruta}")
+            
+        except Exception as e:
+            print(f"Error al guardar resultados: {e}")
+            print(f"Tipo de datos del DataFrame: {type(resultados)}")
+            if hasattr(resultados, 'dtypes'):
+                print(f"Dtypes: {resultados.dtypes}")
+            raise
 
         
 

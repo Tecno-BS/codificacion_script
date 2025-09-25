@@ -44,12 +44,37 @@ def load_data(ruta: str) -> pd.DataFrame:
 
 #Guarda resultados en archivo Excel
 def save_data(data: pd.DataFrame, ruta: str) -> bool:
-    os.makedirs(os.path.dirname(ruta), exist_ok=True)
-
     try:
-        data.to_excel(ruta, index=False)
-        print(f"Resultados guardados en {ruta}")
+        print(f"Iniciando guardado en {ruta}")
+        print(f"Datos: {len(data)} filas, {len(data.columns)} columnas")
+        
+        # Verificar que el DataFrame no esté vacío
+        if data is None or len(data) == 0:
+            print("Advertencia: DataFrame vacío")
+            return False
+        
+        # Crear directorio si no existe
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        
+        # Limpiar datos problemáticos antes de guardar
+        data_clean = data.copy()
+        
+        # Convertir todas las columnas de objeto a string para evitar problemas
+        for col in data_clean.columns:
+            if data_clean[col].dtype == 'object':
+                data_clean[col] = data_clean[col].fillna('').astype(str)
+        
+        # Guardar archivo
+        data_clean.to_excel(ruta, index=False, engine='openpyxl')
+        print(f"Resultados guardados exitosamente en {ruta}")
+        return True
+        
     except Exception as e:
+        print(f"Error detallado al guardar archivo {ruta}: {e}")
+        print(f"Tipo de error: {type(e)}")
+        print(f"Columnas del DataFrame: {list(data.columns) if data is not None else 'None'}")
+        if data is not None and len(data) > 0:
+            print(f"Primeras 3 filas:\n{data.head(3)}")
         raise Exception(f"Error al guardar archivo {ruta}: {e}")
 
 #Verifica si existen códigos anteriores

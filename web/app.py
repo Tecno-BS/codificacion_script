@@ -55,6 +55,32 @@ def configuracion_sidebar():
     st.sidebar.subheader("Cargar archivos")
     archivos = st.sidebar.file_uploader("Cargar archivos", type=["xlsx", "csv"], accept_multiple_files=True)
 
+    st.sidebar.subheader("Configuración GPT")
+
+    # Mostrar modo actual
+    if USE_GPT_MOCK:
+        st.sidebar.success("Modo Mock activado (sin costo real)")
+    else:
+        st.sidebar.warning("Modo Real activado (consumirá créditos)")
+
+    usar_gpt = st.sidebar.checkbox("Usar GPT para casos difíciles", value=True)
+    modelo_gpt = st.sidebar.selectbox(
+        "Modelo GPT",
+        ["gpt-4o-mini", "gpt-4o"],
+        index=0
+    )
+    presupuesto_max = st.sidebar.slider(
+        "Presupuesto máximo (USD)",
+        0.0, 50.0, 10.0
+    )
+
+    st.session_state.usar_gpt = usar_gpt
+    st.session_state.modelo_gpt = modelo_gpt
+    st.session_state.presupuesto_max = presupuesto_max
+    
+    if 'gpt_costo_total' in st.session_state:
+        st.metric("Costo GPT Total", f"${st.session_state.gpt_costo_total:.4f}")
+
     return archivos
 
 #Configuración principal
