@@ -24,12 +24,10 @@ AUXILIARES_CANONICOS = {
     "favorable": "favorable",
     "regular": "regular", 
     "poco favorable": "poco favorable",
-    "poco favoral": "poco favorable",  # Variante común
+    "poco favoral": "poco favorable", 
     "desfavorable": "poco favorable",
     "nada favorable": "poco favorable"
 }
-
-
 
 # Cache de GPT
 GPT_CACHE_ENABLED = True
