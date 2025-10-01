@@ -89,41 +89,36 @@ class SemanticCoder:
         Carga códigos históricos de todas las hojas
         """
         try:
-            # Cargar todas las hojas del archivo Excel
-            excel_file = pd.ExcelFile(ruta)
-            hojas_disponibles = excel_file.sheet_names
-            
-            print(f"Hojas disponibles en códigos: {hojas_disponibles}")
-            
-            for hoja in hojas_disponibles:
-                try:
-                    # Cargar hoja
-                    df_hoja = pd.read_excel(ruta, sheet_name=hoja)
-                    
-                    # Verificar que tenga las columnas necesarias
-                    if 'COD' in df_hoja.columns and 'TEXTO' in df_hoja.columns:
-                        # Renombrar columnas para consistencia
-                        df_hoja = df_hoja.rename(columns={'COD': 'codigo', 'TEXTO': 'descripcion'})
-                        
-                        # Filtrar filas válidas
-                        df_hoja = df_hoja.dropna(subset=['codigo', 'descripcion'])
-                        
-                        if len(df_hoja) > 0:
-                            self.history_codes[hoja] = df_hoja
-                            print(f"Cargados {len(df_hoja)} códigos para {hoja}")
+            # Usar contexto para cerrar el archivo en Windows (evita WinError 32)
+            with pd.ExcelFile(ruta) as excel_file:
+                hojas_disponibles = excel_file.sheet_names
+                print(f"Hojas disponibles en códigos: {hojas_disponibles}")
+                
+                for hoja in hojas_disponibles:
+                    try:
+                        # Cargar hoja desde el manejador abierto
+                        df_hoja = pd.read_excel(excel_file, sheet_name=hoja)
+                        # Verificar que tenga las columnas necesarias
+                        if 'COD' in df_hoja.columns and 'TEXTO' in df_hoja.columns:
+                            # Renombrar columnas para consistencia
+                            df_hoja = df_hoja.rename(columns={'COD': 'codigo', 'TEXTO': 'descripcion'})
+                            # Filtrar filas válidas
+                            df_hoja = df_hoja.dropna(subset=['codigo', 'descripcion'])
+                            if len(df_hoja) > 0:
+                                self.history_codes[hoja] = df_hoja
+                                print(f"Cargados {len(df_hoja)} códigos para {hoja}")
+                            else:
+                                print(f"Hoja {hoja} está vacía")
                         else:
-                            print(f"Hoja {hoja} está vacía")
-                    else:
-                        print(f"Hoja {hoja} no tiene columnas COD y TEXTO")
-                        
-                except Exception as e:
-                    print(f"Error al cargar hoja {hoja}: {e}")
-                    continue
+                            print(f"Hoja {hoja} no tiene columnas COD y TEXTO")
+                    except Exception as e:
+                        print(f"Error al cargar hoja {hoja}: {e}")
+                        continue
             
             if not self.history_codes:
                 print("No se pudieron cargar códigos históricos")
                 return False
-            
+    
             # Generar embeddings para cada pregunta
             for pregunta, df_codigos in self.history_codes.items():
                 descriptions = df_codigos['descripcion'].tolist()
@@ -132,19 +127,21 @@ class SemanticCoder:
             
             print(f"Total de preguntas con códigos: {len(self.history_codes)}")
             return True
-            
+
         except Exception as e:
             print(f"Error al cargar códigos históricos: {e}")
             return False
-    
+
     def codificar_todas_preguntas(self) -> pd.DataFrame:
         """
         Codifica respuestas de todas las preguntas con multicodificación y auxiliares
         """
-        if not self.history_codes or len(self.history_codes) == 0 or not self.codes_embeddings or len(self.codes_embeddings) == 0:
+        if (self.history_codes is None or len(self.history_codes) == 0 or
+            self.codes_embeddings is None or len(self.codes_embeddings) == 0):
             raise ValueError("Debe cargar códigos anteriores primero")
         
-        if self.respuestas_procesadas is None or not self.embeddings_respuestas or len(self.embeddings_respuestas) == 0:
+        if (self.respuestas_procesadas is None or
+            self.embeddings_respuestas is None or len(self.embeddings_respuestas) == 0):
             raise ValueError("Debe procesar respuestas primero")
         
         resultados = self.respuestas_procesadas.copy()
@@ -173,6 +170,7 @@ class SemanticCoder:
             resultados[f'{pregunta}_codigo'] = None
             resultados[f'{pregunta}_similitud'] = 0.0
             resultados[f'{pregunta}_candidatos'] = None
+            resultados[f'{pregunta}_origen'] = None
             
             # Obtener datos de esta pregunta
             df_codigos = self.history_codes[pregunta].copy()
@@ -243,6 +241,7 @@ class SemanticCoder:
                     resultados.at[idx, f"{pregunta}_codigo"] = SEPARADOR_CODIGOS.join(codigos_asignados)
                     resultados.at[idx, f"{pregunta}_similitud"] = max(similitudes_asignadas)
                     resultados.at[idx, f"{pregunta}_candidatos"] = str([(cod, sim) for cod, sim in zip(codigos_asignados, similitudes_asignadas)])
+                    resultados.at[idx, f"{pregunta}_origen"] = "CATALOGO"
                 else:
                     # 2) Fallback: un solo código si supera umbral normal
                     j = int(np.argmax(sims))
@@ -252,6 +251,7 @@ class SemanticCoder:
                         resultados.at[idx, f"{pregunta}_codigo"] = str(df_codigos_filtrado.iloc[j]["codigo"])
                         resultados.at[idx, f"{pregunta}_similitud"] = mejor_sim
                         resultados.at[idx, f"{pregunta}_candidatos"] = str([(str(df_codigos_filtrado.iloc[j]["codigo"]), mejor_sim)])
+                        resultados.at[idx, f"{pregunta}_origen"] = "CATALOGO"
                     else:
                         # 3) Marcar para GPT
                         resultados.at[idx, f"{pregunta}_codigo"] = "REVISAR"
@@ -290,12 +290,14 @@ class SemanticCoder:
                         if codigos:
                             resultados.at[idx, f"{pregunta}_codigo"] = SEPARADOR_CODIGOS.join(codigos)
                             resultados.at[idx, f"{pregunta}_similitud"] = 1.0  # Marcador de GPT
+                            resultados.at[idx, f"{pregunta}_origen"] = "GPT"
                     elif decision == "nuevo":
                         propuesta = resultado.raw.get("propuesta_codigo_nuevo", {})
                         if propuesta:
                             nuevo_codigo = f"NUEVO_{propuesta.get('codigo_sugerido', 'UNKNOWN')}"
                             resultados.at[idx, f"{pregunta}_codigo"] = nuevo_codigo
                             resultados.at[idx, f"{pregunta}_similitud"] = 1.0
+                            resultados.at[idx, f"{pregunta}_origen"] = "GPT"
                             
                             # Guardar propuesta para revisión
                             self._guardar_propuesta_nueva(pregunta, propuesta)
@@ -347,10 +349,10 @@ class SemanticCoder:
             # Sus versiones limpias
             columnas_limpias = [f"{col}_limpio" for col in columnas_originales if f"{col}_limpio" in df.columns]
 
-            # Columnas de resultados por pregunta
+            # Columnas de resultados por pregunta (solo código y origen)
             columnas_resultados = []
             for _, pregunta in self.mapeo_columnas.items():
-                for suf in ["_codigo", "_similitud", "_candidatos"]:
+                for suf in ["_codigo", "_origen"]:
                     col = f"{pregunta}{suf}"
                     if col in df.columns:
                         columnas_resultados.append(col)
@@ -373,8 +375,18 @@ class SemanticCoder:
                 print("Advertencia: No se encontraron columnas para exportar, retornando DataFrame original")
                 return df
 
+            # Normalizar nombres de columnas a string para evitar errores de selección
+            df2 = df.copy()
+            df2.columns = df2.columns.map(str)
+
+            # Asegurar que todas las columnas finales existan y sean strings
+            columnas_finales = [str(c) for c in columnas_finales if str(c) in df2.columns]
+
             print(f"Exportando {len(columnas_finales)} columnas: {columnas_finales[:5]}...")
-            return df[columnas_finales]
+            print(f"Columnas_finales (len={len(columnas_finales)}): {columnas_finales[:8]}...")
+
+            # Selección robusta por etiquetas
+            return df2.loc[:, columnas_finales]
             
         except Exception as e:
             print(f"Error al filtrar columnas: {e}")
@@ -427,7 +439,7 @@ class SemanticCoder:
             
             print("Todas las respuestas procesadas")
             return True
-            
+
         except Exception as e:
             print(f"Error al procesar respuestas: {e}")
             return False
@@ -436,12 +448,11 @@ class SemanticCoder:
         """
         Codifica respuestas sin códigos históricos (solo embeddings)
         """
-        if not self.respuestas_procesadas or not self.embeddings_respuestas:
+        # Evitar evaluar DataFrame en contexto booleano (ambiguous truth value)
+        if self.respuestas_procesadas is None or not self.embeddings_respuestas:
             raise ValueError("Debe procesar respuestas primero")
         
         resultados = self.respuestas_procesadas.copy()
-        resultados['embedding_generado'] = True
-        resultados['preparado_para_gpt'] = True
         
         print("Respuestas preparadas para codificación con GPT")
         return self.filtrar_columnas_para_exportar(resultados)
@@ -457,39 +468,44 @@ class SemanticCoder:
             raise Exception("Error al procesar respuestas")
         
         # Verificar si hay códigos históricos
-        if ruta_codigos and verify_codes(ruta_codigos):
+        if (ruta_codigos is not None) and verify_codes(ruta_codigos):
             print("Códigos anteriores encontrados - Usando codificación híbrida")
             if self.load_history_codes(ruta_codigos):
                 return self.codificar_todas_preguntas()
             else:
                 print("Error al cargar códigos - Continuando sin códigos anteriores")
-        
+
         print("Sin códigos anteriores - Preparando para GPT")
         return self.codificar_sin_historicos()
 
     def guardar_resultados(self, resultados: pd.DataFrame, ruta: str) -> None:
         try:
-            print(f"Guardando resultados: {len(resultados)} filas, {len(resultados.columns)} columnas")
-            print(f"Tipos de columnas: {resultados.dtypes.value_counts()}")
+            # Normalizar nombres de columnas a string para evitar selecciones ambiguas
+            df2 = resultados.copy()
+            df2.columns = df2.columns.map(str)
+
+            print(f"Guardando resultados: {len(df2)} filas, {len(df2.columns)} columnas")
+            print(f"Tipos de columnas: {df2.dtypes.value_counts()}")
             
-            # Verificar que no haya valores problemáticos
-            for col in resultados.columns:
-                if resultados[col].dtype == 'object':
-                    # Verificar si hay valores que no sean strings
-                    non_string_mask = ~resultados[col].astype(str).str.match(r'^[a-zA-Z0-9\s\-_\.]+$', na=False)
-                    if non_string_mask.any():
-                        print(f"Advertencia: Columna {col} tiene valores no estándar")
-                        # Convertir a string para evitar problemas
-                        resultados[col] = resultados[col].astype(str)
+            # Verificar que no haya valores problemáticos y normalizar objetos a string
+            # Nota: si hay columnas duplicadas, acceder por etiqueta devuelve DataFrame.
+            # Recorremos por índice para obtener siempre Series.
+            for i, col in enumerate(df2.columns):
+                serie = df2.iloc[:, i]
+                dtype = serie.dtype
+                if dtype == 'object':
+                    df2.iloc[:, i] = serie.astype(str)
             
-            save_data(resultados, ruta)
+            save_data(df2, ruta)
             print(f"Resultados guardados exitosamente en {ruta}")
             
         except Exception as e:
             print(f"Error al guardar resultados: {e}")
             print(f"Tipo de datos del DataFrame: {type(resultados)}")
-            if hasattr(resultados, 'dtypes'):
+            try:
                 print(f"Dtypes: {resultados.dtypes}")
+            except Exception:
+                pass
             raise
 
         

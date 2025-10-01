@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import re 
 import unicodedata 
 import os
@@ -59,10 +60,32 @@ def save_data(data: pd.DataFrame, ruta: str) -> bool:
         # Limpiar datos problemáticos antes de guardar
         data_clean = data.copy()
         
-        # Convertir todas las columnas de objeto a string para evitar problemas
-        for col in data_clean.columns:
-            if data_clean[col].dtype == 'object':
-                data_clean[col] = data_clean[col].fillna('').astype(str)
+        # Normalizar nombres de columnas a string
+        data_clean.columns = data_clean.columns.map(str)
+        
+        # Aviso si hay columnas duplicadas (puede afectar accesos por etiqueta)
+        try:
+            if data_clean.columns.duplicated().any():
+                print("Advertencia: hay nombres de columnas duplicados en el DataFrame a exportar")
+        except Exception:
+            pass
+        
+        # Convertir todas las columnas 'object' a string, accediendo por índice y saneando celdas no escalares
+        for i in range(data_clean.shape[1]):
+            serie = data_clean.iloc[:, i]
+            if serie.dtype == 'object':
+                def _to_safe_str(v):
+                    if v is None or (isinstance(v, float) and pd.isna(v)):
+                        return ''
+                    # Si ya es escalar aceptable, devuélvelo tal cual (se maneja por to_excel)
+                    if isinstance(v, (str, bool, int, float, np.integer, np.floating, np.bool_)):
+                        return v
+                    # Evitar objetos complejos (DataFrame/Series/list/dict/etc.)
+                    try:
+                        return str(v)
+                    except Exception:
+                        return ''
+                data_clean.iloc[:, i] = serie.map(_to_safe_str)
         
         # Guardar archivo
         data_clean.to_excel(ruta, index=False, engine='openpyxl')

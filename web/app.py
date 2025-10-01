@@ -175,7 +175,7 @@ def ejecutar_codificacion(archivos):
         progress_bar.progress(60)
 
         resultados = codificador.ejecutar_codificacion(
-            ruta_respuestas = str(ruta_respuestas),
+            ruta_respuestas=str(ruta_respuestas),
             ruta_codigos=str(ruta_codigos) if ruta_codigos else None
         )
 
@@ -187,15 +187,22 @@ def ejecutar_codificacion(archivos):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         ruta_resultados = f"result/codificaciones/resultados_{timestamp}.xlsx"
 
-        os.makedirs(os.path.dirname(ruta_resultados), exist_ok=True)
-        resultados.to_excel(ruta_resultados, index=False)
+        # Guardado robusto usando el método del codificador (normaliza datos y maneja errores)
+        try:
+            codificador.guardar_resultados(resultados, ruta_resultados)
+            st.success(f"Archivo guardado: {ruta_resultados}")
+        except Exception as e:
+            st.error("Error al guardar el Excel")
+            st.exception(e)
+            return
 
         progress_bar.progress(100)
         status_text.text("Codificación completada")
 
         mostrar_resultados(resultados, ruta_resultados)
 
-        ruta_resultados.unlink()
+        # No eliminar el archivo guardado para permitir inspección desde disco
+        # ruta_resultados.unlink()
         if ruta_codigos:
             ruta_codigos.unlink()
     except Exception as e:
@@ -203,66 +210,24 @@ def ejecutar_codificacion(archivos):
         progress_bar.progress(0)
 
 def mostrar_resultados(resultados, ruta_resultados):
-    st.header("Resultados de la codificacion")
-
-    resultados_vista = preparar_para_streamlit(resultados)
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        st.metric("Total respuestas", len(resultados))
-
-    with col2:
-        codificadas = sum(1 for col in resultados.columns if col.endswith('_codigo') and resultados[col].notna().any())
-        st.metric("Preguntas codificadas", codificadas)
-    
-    tab1, tab2, tab3 = st.tabs(["Datos", "Graficos", "Descargar"])
-
-    with tab1:
-        st.subheader("Datos de Resultados")
-        st.dataframe(resultados_vista, width='stretch')  # reemplaza use_container_width
-
-    
-    with tab2:
-        st.subheader("Gráficos de Distribución")
-        generar_graficos(resultados)
-    
-    with tab3:
-        st.subheader("Descargar Resultados")
-        excel_bytes = df_a_excel_bytes(resultados_vista)
+    st.header("Descargar resultados")
+    # Solo ofrecer descarga, sin vista previa ni gráficos
+    try:
+        excel_bytes = df_a_excel_bytes(resultados)
         st.download_button(
             label="📥 Descargar Excel (.xlsx)",
             data=excel_bytes,
             file_name=f"codificacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+        st.info(f"Archivo también guardado en: {ruta_resultados}")
+    except Exception as e:
+        st.error("Error preparando el archivo para descarga")
+        st.exception(e)
 
 def generar_graficos(resultados):
-    """Generar gráficos de los resultados"""
-    # Gráfico de distribución de códigos
-    codigos_columns = [col for col in resultados.columns if col.endswith('_codigo')]
-    
-    if codigos_columns:
-        fig = go.Figure()
-        
-        for col in codigos_columns:
-            pregunta = col.replace('_codigo', '')
-            codigos = resultados[col].value_counts()
-            
-            fig.add_trace(go.Bar(
-                name=pregunta,
-                x=codigos.index,
-                y=codigos.values
-            ))
-        
-        fig.update_layout(
-            title="Distribución de Códigos por Pregunta",
-            xaxis_title="Código",
-            yaxis_title="Frecuencia",
-            barmode='group'
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+    # Vista de gráficos deshabilitada por solicitud: solo descarga
+    return
 
 def mostrar_estado():
     """Mostrar estado del sistema"""
