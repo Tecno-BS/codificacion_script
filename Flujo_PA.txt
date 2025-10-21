@@ -1,0 +1,115 @@
+**REGION Inicia parametros
+Folder.GetSpecialFolder SpecialFolder: Folder.SpecialFolder.DesktopDirectory SpecialFolderPath=> FolderDesktop
+Folder.Create FolderPath: FolderDesktop FolderName: $'''Brandstrat''' Folder=> folderSolution
+Folder.Create FolderPath: folderSolution FolderName: $'''Entrada''' Folder=> carpetaEntrada
+Folder.Create FolderPath: folderSolution FolderName: $'''Salida''' Folder=> carpetaSalida
+IF (File.IfFile.Exists File: $'''%carpetaEntrada%\\respuestas.txt''') THEN
+    File.Delete Files: $'''%carpetaEntrada%\\respuestas.txt'''
+END
+IF (File.IfFile.Exists File: $'''%carpetaEntrada%\\respuestas.pdf''') THEN
+    File.Delete Files: $'''%carpetaEntrada%\\respuestas.pdf'''
+END
+**ENDREGION
+Folder.GetFiles Folder: carpetaEntrada FileFilter: $'''*.xlsx''' IncludeSubfolders: False FailOnAccessDenied: True SortBy1: Folder.SortBy.NoSort SortDescending1: False SortBy2: Folder.SortBy.NoSort SortDescending2: False SortBy3: Folder.SortBy.NoSort SortDescending3: False Files=> Files
+IF Files.Count > 0 THEN
+    LOOP FOREACH CurrentFile IN Files
+        SET empresa TO CurrentFile.NameWithoutExtension
+        Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: CurrentFile Visible: True ReadOnly: False UseMachineLocale: False Instance=> ExcelInstance
+        Excel.GetFirstFreeColumnRow Instance: ExcelInstance FirstFreeColumn=> FirstColumn
+        SET FirstColumn TO FirstColumn - 1
+        LOOP LoopIndex FROM 2 TO FirstColumn STEP 1
+            **REGION Crear archivo de respuestas
+            Excel.GetFirstFreeRowOnColumn Instance: ExcelInstance Column: $'''A''' FirstFreeRowOnColumn=> lastRow
+            Excel.ReadFromExcel.ReadCell Instance: ExcelInstance StartColumn: LoopIndex StartRow: 1 GetCellContentsMode: Excel.GetCellContentsMode.FormattedTextValues CellValue=> pregunta
+            Excel.ReadFromExcel.ReadCells Instance: ExcelInstance StartColumn: LoopIndex StartRow: 2 EndColumn: LoopIndex EndRow: lastRow - 1 FirstLineIsHeader: False GetCellContentsMode: Excel.GetCellContentsMode.FormattedTextValues RangeValue=> ExcelData
+            IF ExcelData.RowsCount > 0 THEN
+                File.WriteText File: $'''%carpetaEntrada%\\respuestas.txt''' TextToWrite: ExcelData AppendNewLine: True IfFileExists: File.IfFileExists.Overwrite Encoding: File.FileEncoding.UTF8
+                **REGION Analizar respuesta y categorizar
+                Scripting.RunVBScript.RunVBScript VBScriptCode: $'''filePath = \"%carpetaEntrada%\\respuestas.txt\"
+pdfPath = \"%carpetaEntrada%\\respuestas.pdf\"
+
+\' Crear Word
+Set wordApp = CreateObject(\"Word.Application\")
+wordApp.Visible = False
+
+Set doc = wordApp.Documents.Add()
+
+\' Leer el archivo como UTF-8 usando ADODB.Stream
+Set stream = CreateObject(\"ADODB.Stream\")
+With stream
+    .Charset = \"utf-8\"
+    .Open
+    .LoadFromFile filePath
+    textContent = .ReadText
+    .Close
+End With
+
+\' Insertar texto en el documento
+doc.Content.Text = textContent
+
+\' Guardar como PDF
+doc.SaveAs2 pdfPath, 17
+
+\' Cerrar Word
+doc.Close False
+wordApp.Quit
+
+\' Limpiar
+Set stream = Nothing
+Set doc = Nothing
+Set wordApp = Nothing
+
+WScript.Echo \"PDF generado exitosamente en: \" & pdfPath
+'''
+                File.ConvertToBase64 File: $'''%carpetaEntrada%\\respuestas.pdf''' Base64Text=> Base64Text
+                SET prompt TO $'''Eres un analista de investigación cualitativa experto en codificación temática.\\n INSTRUCCIONES:\\n 1. Analiza el siguiente conjunto de respuestas correspondientes a la pregunta:%pregunta%.\\n 2. Identifica todas las categorías temáticas emergentes (no inventes ninguna que no aparezca en los datos).\\n 3. Redacta UNA idea principal que resuma cada categoría.\\n 4. Asigna a cada categoría un código único en formato «C n» (C1, C2, C3…).\\n 5. A cada respuesta asígnale CODIGO, CATEGORIA, IDEA PRINCIPAL \\n 6. Si una respuesta aplica para varias categorias, separalas con una coma \\n 7.Devuelve *solo* un objeto JSON con la siguiente estructura exacta (sin explicación adicional, encabezados ni texto fuera del JSON):\\n{\\n \\\"pregunta\\\": [\\n {\\n \\\"respuesta\\\": \\\"correspondiente respuesta\\\",\\n \\\"codigo\\\": \\\"C1\\\",\\n \\\"categoria\\\": \\\"Nombre de la categoría\\\",\\n \\\"idea_principal\\\": \\\"idea principal\\\"\\n }\\n ]\\n }\\n'''
+                SET JSON TO $'''{
+    \"model\": \"gpt-4.1\",
+    \"input\": [
+        {
+            \"role\": \"user\",
+            \"content\": [
+                {
+                    \"type\": \"input_file\",
+                    \"filename\": \"respuestas.pdf\",
+                    \"file_data\": \"data:application/pdf;base64,%Base64Text%\"
+                },
+                {
+                    \"type\": \"input_text\",
+                    \"text\": \"%prompt%\"
+                }
+            ]
+        }
+    ],
+    \"max_output_tokens\": 11000
+}'''
+                
+                Variables.ConvertJsonToCustomObject Json: WebServiceResponse CustomObject=> JsonAsCustomObject
+                SET respuestaOpenAI TO JsonAsCustomObject['output'][0]['content'][0]['text']
+                Variables.ConvertJsonToCustomObject Json: respuestaOpenAI CustomObject=> JsonAsCustomObject
+                SET rutaArchivoCategorias TO $'''%carpetaSalida%\\%empresa%_Pregunta_%LoopIndex%_Categorias.csv'''
+                File.WriteText File: rutaArchivoCategorias TextToWrite: $'''CODIGO;CATEGORIA;IDEA PRINCIPAL;RESPUESTA''' AppendNewLine: True IfFileExists: File.IfFileExists.Overwrite Encoding: File.FileEncoding.UTF8
+                LOOP FOREACH CurrentItem IN JsonAsCustomObject['pregunta']
+                    SET codigo TO CurrentItem['codigo']
+                    SET respuesta TO CurrentItem['respuesta']
+                    SET categoria TO CurrentItem['categoria']
+                    SET idea_principal TO CurrentItem['idea_principal']
+                    File.WriteText File: rutaArchivoCategorias TextToWrite: $'''%codigo%;%categoria%;%idea_principal%;%respuesta%''' AppendNewLine: True IfFileExists: File.IfFileExists.Append Encoding: File.FileEncoding.UTF8
+                END
+                **ENDREGION
+            ELSE
+                GOTO Fin
+            END
+            **ENDREGION
+            LABEL Fin
+        END
+    END
+ELSE
+    Display.ShowMessageDialog.ShowMessageWithTimeout Message: $'''No se encontraron archivos XLSX para procesar''' Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False Timeout: 20
+END
+IF (File.IfFile.Exists File: $'''%carpetaEntrada%\\respuestas.txt''') THEN
+    File.Delete Files: $'''%carpetaEntrada%\\respuestas.txt'''
+END
+IF (File.IfFile.Exists File: $'''%carpetaEntrada%\\respuestas.pdf''') THEN
+    File.Delete Files: $'''%carpetaEntrada%\\respuestas.pdf'''
+END
