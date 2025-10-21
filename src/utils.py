@@ -7,19 +7,158 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 
-#Limpia el texto y normaliza para procesamiento
-def clean_text(text: str) -> str:
+def fix_encoding_issues(text: str) -> str:
+    """
+    Corrige problemas de encoding comunes donde tildes aparecen como '?'
+    Utiliza patrones contextuales comunes en español para determinar la corrección
+    """
     if not isinstance(text, str) or pd.isna(text):
         return ""
     
+    # NO aplicar correcciones si el texto es una pregunta (? al final)
+    if text.strip().endswith('?'):
+        return text
+    
+    # Si comienza con ¿, solo corregir después del inicio
+    if text.startswith('¿'):
+        return text
+    
+    # Patrones contextuales comunes en español (más específicos primero)
+    # Formato: (patrón, reemplazo)
+    context_patterns = [
+        # Terminaciones comunes
+        ('ci?n', 'ción'),      # nación, función, representación
+        ('si?n', 'sión'),      # decisión
+        ('ni?n', 'nión'),      # opinión
+        ('ti?n', 'tión'),      # gestión
+        ('ri?n', 'rión'),      # 
+        ('aci?n', 'ación'),    # representación
+        ('ici?n', 'ición'),    # 
+        ('uci?n', 'ución'),    # 
+        
+        # Vocal + ?n al final
+        ('a?n', 'án'),         
+        ('e?n', 'én'),         
+        ('i?n', 'ín'),         
+        ('o?n', 'ón'),         
+        ('u?n', 'ún'),         
+        
+        # ? solo (probablemente reemplaza una vocal con tilde)
+        # Contextos específicos
+        ('?blica', 'ública'),  # pública
+        ('?blico', 'úblico'),  # público
+        ('p?blica', 'pública'),
+        ('p?blico', 'público'),
+        
+        ('c?mara', 'cámara'),
+        ('?mara', 'ámara'),    # cámara
+        
+        ('pol?tica', 'política'),
+        ('democr?tico', 'democrático'),
+        ('?tico', 'ático'),    # democrático
+        ('?tica', 'ática'),    # política
+        
+        # Ñ mal codificada
+        ('a?o', 'año'),
+        ('n?o', 'ño'),
+        ('n?a', 'ña'),
+        
+        # Patrones generales (aplicar al final)
+        ('a?', 'á'),
+        ('e?', 'é'),
+        ('i?', 'í'),
+        ('o?', 'ó'),
+        ('u?', 'ú'),
+        ('A?', 'Á'),
+        ('E?', 'É'),
+        ('I?', 'Í'),
+        ('O?', 'Ó'),
+        ('U?', 'Ú'),
+    ]
+    
+    # Aplicar reemplazos en orden (específicos primero)
+    for pattern, replacement in context_patterns:
+        text = text.replace(pattern, replacement)
+    
+    return text
+
+
+def clean_text_for_gpt(text: str) -> str:
+    """
+    Limpieza MÍNIMA optimizada para GPT (v0.5)
+    
+    Preserva el máximo contexto para que GPT entienda mejor:
+    - Mantiene mayúsculas (énfasis, nombres propios)
+    - Mantiene puntuación (contexto emocional, sentido)
+    - Mantiene tildes (significado en español)
+    
+    Solo corrige:
+    - Problemas de encoding (? -> tildes)
+    - Espacios múltiples
+    - Caracteres de control/no imprimibles
+    
+    Args:
+        text: Texto a limpiar
+        
+    Returns:
+        Texto con limpieza mínima
+    """
+    if not isinstance(text, str) or pd.isna(text):
+        return ""
+    
+    # 1. Corregir problemas de encoding (CRÍTICO)
+    text = fix_encoding_issues(text)
+    
+    # 2. Eliminar caracteres de control y no imprimibles
+    # Preserva: letras, números, espacios, puntuación común, tildes
+    text = ''.join(char for char in text if char.isprintable() or char.isspace())
+    
+    # 3. Normalizar espacios múltiples (ahorra tokens)
+    text = re.sub(r'\s+', ' ', text)
+    text = text.strip()
+    
+    # NO convertir a minúsculas
+    # NO eliminar puntuación
+    # NO eliminar caracteres especiales relevantes
+    
+    return text
+
+
+def clean_text(text: str, preserve_accents: bool = True) -> str:
+    """
+    Limpieza AGRESIVA (legacy - para compatibilidad con v2.1)
+    
+    NOTA: Para v0.5 se recomienda usar clean_text_for_gpt()
+    
+    Args:
+        text: Texto a limpiar
+        preserve_accents: Si True, preserva tildes y caracteres acentuados
+    """
+    if not isinstance(text, str) or pd.isna(text):
+        return ""
+    
+    # Primero corregir problemas de encoding
+    text = fix_encoding_issues(text)
+    
+    # Convertir a minúsculas
     text = text.lower()
-
-    text = unicodedata.normalize('NFD', text)
-    text = ''.join(c for c in text if unicodedata.category(c) != 'Mn')
-
-    text = re.sub(r'[^a-z0-9\s]', ' ', text)
-
-    text = re.sub(r'\s+',' ', text)
+    
+    # Manejar tildes según configuración
+    if not preserve_accents:
+        # Solo eliminar tildes si explícitamente se solicita
+        text = unicodedata.normalize('NFD', text)
+        text = ''.join(c for c in text if unicodedata.category(c) != 'Mn')
+    
+    # Preservar letras con tildes, ñ y caracteres alfanuméricos
+    if preserve_accents:
+        # Permitir: letras (incluidas á,é,í,ó,ú,ñ), números y espacios
+        text = re.sub(r'[^a-záéíóúñü0-9\s]', ' ', text)
+    else:
+        # Solo letras sin tildes, números y espacios
+        text = re.sub(r'[^a-z0-9\s]', ' ', text)
+    
+    # Normalizar espacios múltiples
+    text = re.sub(r'\s+', ' ', text)
     text = text.strip()
 
     return text

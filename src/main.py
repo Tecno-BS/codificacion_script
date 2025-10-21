@@ -171,7 +171,15 @@ def main():
     if args.evaluar:
         ejecutar_evaluacion(ruta_resultados, args.comparar)
     
-    print("\n�� Proceso completado exitosamente!")
+    # Exportar catálogo de códigos nuevos consolidado
+    print("\n📦 Exportando catálogo de códigos nuevos...")
+    codificador = SemanticCoder()
+    ruta_catalogo = codificador.exportar_catalogo_nuevos_consolidado()
+    
+    if ruta_catalogo:
+        print(f"✅ Catálogo de códigos nuevos: {ruta_catalogo}")
+    
+    print("\n✅ Proceso completado exitosamente!")
     print(f"📁 Resultados disponibles en: {ruta_resultados}")
 
 

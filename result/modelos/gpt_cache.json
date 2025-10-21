@@ -1,374 +1,670 @@
 {
   "4cfc344fb8576648fd82f1a7dd43767b7ba6538615f1b64b545618194cee5e19": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.18)",
-    "propuesta_codigo_nuevo": null
-  },
-  "f07f7e0f232957d18931101d9e9f3e1673a63e547bf93ab91dcc05c39081dc50": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.25)",
-    "propuesta_codigo_nuevo": null
-  },
-  "60045ab977b00a8dd15228c4b478975a360bb09490b159fd20f633a69b159129": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.55) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.18)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_9563",
-      "descripcion": "Referencia a la c mara"
+      "codigo_sugerido": "NEW_145",
+      "descripcion": "Respuesta relacionada con son los encargados"
     }
   },
-  "41001adb8db0ce83736bff8b115ca116b7b66b6644d3d36ea1827e9e76725b9b": {
+  "3493cd9fe4796319abc6139e4594576658f6ed165bb9b0b69eebb109c100306a": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.62) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.59)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_4639",
-      "descripcion": "Comentario sobre la c mara"
+      "codigo_sugerido": "NEW_740",
+      "descripcion": "Respuesta relacionada con la c\u00e1mara de"
     }
   },
-  "fc30914d49e8f70180dc5904000f7e1f4718b4bef527b127a42de2f03d8808ae": {
+  "b079c5222affe9825ec64a7f6ccfe243f9cc9b4e6df4fe61451cb63a9134ae03": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.59) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.76)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_6205",
-      "descripcion": "Referencia a la c mara"
+      "codigo_sugerido": "NEW_861",
+      "descripcion": "Referencia a la c\u00e1mara de"
     }
   },
-  "ee68b2a7874e6d21c89967483a1ffa36401a5ce4f75077e41ce7a7446a7cfdf1": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.20)",
-    "propuesta_codigo_nuevo": null
-  },
-  "e6a9cb045640619c5dd114e4e27b5265552ab3e95b4d7f155786f897875185a2": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.19)",
-    "propuesta_codigo_nuevo": null
-  },
-  "935a03f82ad403279fc2a8d882ae5cbe741de8fd318bc6fa3be33e2565cd7daf": {
+  "b3fba423be030faf3b47f76909f4ce9f8d5e6ab9fc3f0d53c18284b27cf43b67": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.66) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.56)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_3967",
-      "descripcion": "Comentario sobre qu es la"
+      "codigo_sugerido": "NEW_829",
+      "descripcion": "Opini\u00f3n sobre funci\u00f3n constituyente para"
     }
   },
-  "0966b672b9849f3f53d138c3a358a36cb42f7fa38779647c1e77b87e10b242ae": {
+  "c8c39fba9772a2f2d4e838071b5eec12d1db136f6a4079e31da1ead736d1245e": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.44) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.75)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_1612",
-      "descripcion": "Comentario sobre la c mara"
+      "codigo_sugerido": "NEW_213",
+      "descripcion": "Referencia a la c\u00e1mara de"
     }
   },
-  "2d0115be0b58a2cf815332374508d983ce045e9050797301864cb2fe9024149f": {
-    "decision": "rechazar",
+  "f552c575077fb76051455ee72d7211e907961e613a5697b098c23295a9aef477": {
+    "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
-    "propuesta_codigo_nuevo": null
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.21)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_317",
+      "descripcion": "Referencia a 1 legislativa crear"
+    }
+  },
+  "b09b6d76e931ab31829a0e09a68dc85df63ee90b143922331b3a95cdbb9bea6b": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.10)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_543",
+      "descripcion": "Respuesta relacionada con es una entidad"
+    }
+  },
+  "3b063549f3c5345d481ea122ef67b3375357689e54e90bbab882532be7fcb382": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.65)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_593",
+      "descripcion": "Menci\u00f3n de q\u00fa es la"
+    }
+  },
+  "48f6a3ff1033c3c6e67a49b176078dd204219e3215e804f6766d13183672f7c7": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.42)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_574",
+      "descripcion": "Opini\u00f3n sobre la c\u00e1mara de"
+    }
+  },
+  "aef5f51d0433f53215cbede961afc5ddd664233e580b64c761017893b7117506": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.45)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_758",
+      "descripcion": "Respuesta relacionada con la c\u00e1mara de"
+    }
+  },
+  "9eb7f029bfe6022ae6e273be45466ed20c8450b284fbd0940e3a2845d0c8b3b4": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.14)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_112",
+      "descripcion": "Opini\u00f3n sobre la camara de"
+    }
   },
   "8c2b6d8d424c8132695f2d6d71bfba51dfb4b613d40e3761d4af8fea846c1ffe": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.18)",
-    "propuesta_codigo_nuevo": null
-  },
-  "7ac27ad4cd909a27d81e6aa71fec0c3b00d84dfd98bd9a73a2c605fdfe931d47": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.18)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_1264",
-      "descripcion": "Menci\u00f3n de una elabora las"
+      "codigo_sugerido": "NEW_329",
+      "descripcion": "Comentario sobre representar dignamente al"
     }
   },
-  "d2d51d5f370a6d741a09d1c0c255d0d556ed6cdc3f085537ab2059cbb8ad2a33": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
-    "propuesta_codigo_nuevo": null
-  },
-  "5bbfc612fb96c45434d0cd2b9ba840bd5fa280b973e93103d84e8ba82d2194b5": {
+  "8f06060566fd3ad04495865e012fd5db7081120ce1210d6e4c6b06d875b200df": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_3706",
-      "descripcion": "Comentario sobre regular"
+      "codigo_sugerido": "NEW_211",
+      "descripcion": "Opini\u00f3n sobre el senado deliberar"
     }
   },
-  "8c59153b6da5cd140afbc9d1e585994144c8df76fd57e59468b9fc691a062441": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
-    "propuesta_codigo_nuevo": null
-  },
-  "6ab4f543645c271f037d37ff4872fa51e2f61a51113f8e378996a0c7d3276dbd": {
+  "d99fa2a0891f47641079e569748e6e70597c002817a072d1092b7af00814909a": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_1064",
-      "descripcion": "Referencia a me parece que"
+      "codigo_sugerido": "NEW_636",
+      "descripcion": "Comentario sobre la c\u00e1mara de"
     }
   },
-  "be1078c4bee4cc1e6df39f5d09e065d4e9964a66360d30ce49ed271329ee907a": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
-    "propuesta_codigo_nuevo": null
-  },
-  "68d18a72bc69b064bd83f5f1f831bee0af6c636e51ed4317ea3206484b4d4e0d": {
+  "6a41c80bee681cf8459b804a19104be358afc8bbd6c5f3700b01ff996827b1c1": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.19)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_2608",
-      "descripcion": "Referencia a no conozco"
+      "codigo_sugerido": "NEW_853",
+      "descripcion": "Referencia a mandato corto representasion"
     }
   },
-  "d64544c41e0139ce7a5bf8021e6612d05a524ab46f221d216d436d592b593a2c": {
+  "b3b2196a3b5bca6ce0d93bb7dae79992ba4ab290e3e29dcf96d340d8d2b2f8fe": {
     "decision": "rechazar",
     "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
+    "justificacion_breve": "Respuesta muy corta o irrelevante (similitud: 0.82)",
+    "confianza": 0.9,
     "propuesta_codigo_nuevo": null
   },
-  "93fc617a3d6e7b5f3a8dc3e96266408abf95461a52f1cc7490d232da6ed7c888": {
+  "0f1a2dabb467e71f94dccc4244cb9584ddc9095d255af2c2f9d8b0786d94b62c": {
+    "decision": "rechazar",
+    "codigos_asignados": [],
+    "justificacion_breve": "Respuesta muy corta o irrelevante (similitud: 0.80)",
+    "confianza": 0.9,
+    "propuesta_codigo_nuevo": null
+  },
+  "5c3bf9fcb948184dd12ea07433f0a1379a16bf9cc80262200510b49c0d7b305a": {
+    "decision": "rechazar",
+    "codigos_asignados": [],
+    "justificacion_breve": "Respuesta muy corta o irrelevante (similitud: 0.19)",
+    "confianza": 0.9,
+    "propuesta_codigo_nuevo": null
+  },
+  "fe0b577dd0e28620c55e7d27f0c7a42c8ea4d21d3f66a00f29b4e5383b3c9043": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.50) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_8914",
-      "descripcion": "Menci\u00f3n de jaime ra l"
+      "codigo_sugerido": "NEW_833",
+      "descripcion": "Menci\u00f3n de por q\u00fa tiene"
     }
   },
-  "39b7b39975884a337d03726fdee22b40f385d4425b13f416451a50c337c3606a": {
-    "decision": "rechazar",
+  "0f07618b8c37a421098dab52e13c1cb4c0f550599efa943b8dcd359747d4e6dd": {
+    "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.21)",
-    "propuesta_codigo_nuevo": null
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_361",
+      "descripcion": "Menci\u00f3n de no ejercen bien"
+    }
+  },
+  "44bbe5cb52c062395e64c5a3c8101bbece5333a0272e23c9cde6ac7ec71435ab": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.19)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_729",
+      "descripcion": "Opini\u00f3n sobre la c\u00e1mara de"
+    }
+  },
+  "2e5b3ece74dbfc2331602cf358b9069a49936fe40d9a3df9691cdcff034d2364": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_763",
+      "descripcion": "Respuesta relacionada con jaime luis p\u00e9aloza"
+    }
+  },
+  "43e6235f40eb98b3a4a6c70f3018b60a8094b50375981211e53feb835af91b80": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_581",
+      "descripcion": "Opini\u00f3n sobre andr s gaviria"
+    }
+  },
+  "7b38bcb0ed889b5f6c811260e9b102bee8f83e3be79745d33c54d217c7a8a774": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.19)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_504",
+      "descripcion": "Menci\u00f3n de fernando david n\u00edo"
+    }
+  },
+  "bca3741f11f95fcf1c0e01d30cf20b0b8c1a5c615c48e195ac3558918d67b3ff": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.35)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_832",
+      "descripcion": "Opini\u00f3n sobre no los conozco"
+    }
+  },
+  "943cda01b4baa142950ce3607c5f9aefce6525191b94f5937a8e9f121ef5061e": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.27)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_570",
+      "descripcion": "Referencia a jaime r\u00e1l salamanca"
+    }
+  },
+  "b93dfc9d0924cd534d2751d9056587c25d91447828b68cc0f4f61bc0f9ead5c1": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.83)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_876",
+      "descripcion": "Respuesta relacionada con no los conozco"
+    }
+  },
+  "19aa791529afdcf2432edbd7df072d1d9656494eca7d5706222d8aacbd14d05b": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.20)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_573",
+      "descripcion": "Referencia a no me acuerdo"
+    }
+  },
+  "8652309644f40275e36af3b97c68c6a955cd7e67295efbc258197d8a36ad0b0f": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.83)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_428",
+      "descripcion": "Comentario sobre no me acuerdo"
+    }
   },
   "77b160d519885e019683e992ebf679bd4b8e4de1b253a9f1bc5de63d8fa30b2e": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.52) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.52)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_4679",
-      "descripcion": "Opini\u00f3n sobre luz aida pastrana"
+      "codigo_sugerido": "NEW_384",
+      "descripcion": "Referencia a luz aida pastrana"
     }
   },
-  "a471e510ace88dd47a6aef011ffb03aa7ea7ab42018a799c233bf9b18b8ad623": {
+  "f0df941d281f186de8a79c4e15b8794dae94e27ac6e7f39bb259d0cb064a459e": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.33) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.42)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_7815",
+      "codigo_sugerido": "NEW_962",
       "descripcion": "Respuesta relacionada con juan carlos lozada"
     }
   },
-  "a727a0705be96611a2e2bdbc16c337089f030bae2671ec8ec9a94938baae8f41": {
-    "decision": "nuevo",
-    "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
-    "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_7468",
-      "descripcion": "Opini\u00f3n sobre con manuel cort"
-    }
-  },
-  "3aa344b0331518c009a6a7f7034fe6b72639bc43cc5b2fad04e84f502a2fd181": {
-    "decision": "nuevo",
-    "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
-    "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_7345",
-      "descripcion": "Comentario sobre porque es una"
-    }
-  },
-  "0cf58f83c96348533fe3192fd53e4d1be72657ce5adc1489c61b0a697a076ae2": {
-    "decision": "nuevo",
-    "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
-    "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_1685",
-      "descripcion": "Opini\u00f3n sobre considero que hay"
-    }
-  },
-  "af1ef77314cebbb62bd43f3ee0944533ca41f5b6ed744f0f82f354a3ee597143": {
+  "63c97887b1497a96166aec3cd8a8e8d6357901e572463288ae6b4682a531c9cd": {
     "decision": "rechazar",
     "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
+    "justificacion_breve": "Respuesta muy corta o irrelevante (similitud: 0.85)",
+    "confianza": 0.9,
     "propuesta_codigo_nuevo": null
   },
-  "1b0a3628a76a2becb8c2ef6b693c32278d275b81d043e2555558a747f7f68966": {
+  "861e1302dbee077c3a76ada9c51e9746e938b7993edf25ab982d77a96b64b81d": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.50) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_6367",
-      "descripcion": "Opini\u00f3n sobre ninguno de los"
+      "codigo_sugerido": "NEW_405",
+      "descripcion": "Menci\u00f3n de alejandro carlos chacon"
     }
   },
-  "a9e174709679585f2f9bbe4932600b7545a9366efe3cee58d3541913687f805d": {
-    "decision": "rechazar",
+  "15a698fe47d07ddd4a8c5541b98df5b966f890d45583196a90e3e834f3e74188": {
+    "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.21)",
-    "propuesta_codigo_nuevo": null
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_318",
+      "descripcion": "Respuesta relacionada con lina maria garrido"
+    }
+  },
+  "c17874c979b88421e31635cb142e86326bc30fcb2410b3b10059abea5d1a5414": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_663",
+      "descripcion": "Menci\u00f3n de es un excelente"
+    }
+  },
+  "4852eee803e400525e818ccc919ac4603194c0df73c5005b815eebf1d62b000f": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_142",
+      "descripcion": "Opini\u00f3n sobre por su capacidad"
+    }
+  },
+  "a9c533c7a6e2c7c8d9235a76c0a791582b681540b341e8009b27557f61881933": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_422",
+      "descripcion": "Opini\u00f3n sobre no tengo claridad"
+    }
+  },
+  "04e299c356fdd371e4e5ba5c2d6484341d331996f3a92351c79ca922fa5ae63a": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_493",
+      "descripcion": "Comentario sobre el p\u00e1s sigue"
+    }
+  },
+  "42ff6768e13aff677d58ab8825ae0ef0eece372337021f7520441f9e0fc7e73a": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.19)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_491",
+      "descripcion": "Comentario sobre por q\u00fa no"
+    }
+  },
+  "d1e07c7b4125b7872ac49a0a41333fb305429c6bf49a43aa1d55fb667fecdbfc": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.35)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_425",
+      "descripcion": "Respuesta relacionada con ninguno muestra inter"
+    }
+  },
+  "cdd91175388f0bda877fd2f470db1eaf803aeb84351e815a51c6a8d081d310e1": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.27)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_927",
+      "descripcion": "Respuesta relacionada con ninguno de los"
+    }
+  },
+  "845f11d5f45b89b069fe1762365394792dcdc3d71744de907242cbdbb4a4986c": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.83)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_899",
+      "descripcion": "Comentario sobre creo que la"
+    }
+  },
+  "4965602f6f2b0d1a4af4c3fca7ea74c392b61ae4a2b753ee9415a95432200d2b": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.20)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_173",
+      "descripcion": "Opini\u00f3n sobre porque me falta"
+    }
+  },
+  "b2898549e5346b5c40227f41069ccf8a4718abde07b8488dc50caa778857e4d4": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.83)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_173",
+      "descripcion": "Menci\u00f3n de porque no soy"
+    }
   },
   "13fb60c7c7e9032059385c28eada324646dbf7cadc38636669820050b16c6b55": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.52) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.52)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_8251",
+      "codigo_sugerido": "NEW_269",
       "descripcion": "Respuesta relacionada con prometieron mucho y"
     }
   },
-  "eed5872e75a05eda0383ee3721cadfbdf3eac7cd646d6f5c4b4eee4446198f45": {
+  "8057d17656c6e788f72d96046c302f436b82c1c77d92bfcf86ce221a7aa58516": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.33) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.42)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_3154",
-      "descripcion": "Referencia a por qu no"
+      "codigo_sugerido": "NEW_335",
+      "descripcion": "Respuesta relacionada con por q\u00fa no"
     }
   },
-  "28d26c1f7bfe31791dd107491a0e359f14b82ad9a1b1189e27dd738dc99d48c5": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.18)",
-    "propuesta_codigo_nuevo": null
-  },
-  "01fb5e601038df2f43f1c09df5ba16a837c1b34da40727fdcd16e07ed711af50": {
+  "a11c8776929e0576248165feca98b35978d698c262723a95d5b68ed22d587b94": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.59) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.85)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_4529",
-      "descripcion": "Menci\u00f3n de no tengo acercamiento"
+      "codigo_sugerido": "NEW_101",
+      "descripcion": "Comentario sobre no puedo afirmar"
     }
   },
-  "41cf6d0191922a7a2e025fafc052e3c00b62c7d01212ebb0de2b20f98d02eb2e": {
+  "1bb58b4c2fa9c87369b410a07529380eebd65c80419ff34bc858f2cc230a3430": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.63) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.20)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_5422",
-      "descripcion": "Opini\u00f3n sobre porque no veo"
+      "codigo_sugerido": "NEW_370",
+      "descripcion": "Opini\u00f3n sobre no entiendo como"
     }
   },
-  "1375239555ceb47b0793ae017d06b16d0d7abc2cdedb331451d5da44a5fff049": {
+  "11dcfb1df1f463ec766ca45f452b3368bc23ef1469b418ac90ae1ff0f270ae1a": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.44) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.59)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_8045",
-      "descripcion": "Referencia a creo que para"
+      "codigo_sugerido": "NEW_949",
+      "descripcion": "Referencia a no tengo acercamiento"
     }
   },
-  "55756f676fd1ba9d7c1c5c24f9b5293ab1db3e7661d39787fb4e1c736044e5b5": {
+  "0f8efb5644579d0aeb201c0385bcbfdb123b438ac63f63c95fcc7d6ec0d8060e": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.35) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_6220",
-      "descripcion": "Opini\u00f3n sobre sueldos cada vez"
+      "codigo_sugerido": "NEW_437",
+      "descripcion": "Opini\u00f3n sobre no veo resultados"
     }
   },
-  "8bfbd17a87bf6c21665c433fc86be622c9e2fd57bfae7fe3f8f29733e61deb4f": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.14)",
-    "propuesta_codigo_nuevo": null
-  },
-  "dd67b8cbc39dbd455f907e8bcb3f1f7b260e30a10558fa2d98cfe9913224bf5e": {
+  "a4f9a339fd88c7c7b21a872b68a82e3d37aa6adc4153408fcba6376c57f03f37": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.50) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.83)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_2614",
-      "descripcion": "Respuesta relacionada con el gobierno actual"
+      "codigo_sugerido": "NEW_150",
+      "descripcion": "Menci\u00f3n de no se quienes"
     }
   },
-  "76a81ad0a92623a6339e34e82bc64fe7fffb7681f1e6d4284467c26e4a8e0623": {
-    "decision": "rechazar",
+  "0ad5b656d4b320a62a604919157035b136d8f0023e422a043635d0159e94f3ea": {
+    "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.21)",
-    "propuesta_codigo_nuevo": null
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.45)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_730",
+      "descripcion": "Comentario sobre creo que para"
+    }
+  },
+  "010d554a96c0f4285cfbc56d481ba00aeb3f5e5e63219a52f61fdddfbbc3663a": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.82)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_714",
+      "descripcion": "Referencia a por q si"
+    }
+  },
+  "22d020dc920b9764e6fb3039aa8707185ff7c3087fff04f3d6a9d9cb803d5fba": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.80)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_928",
+      "descripcion": "Respuesta relacionada con pues por q"
+    }
+  },
+  "bb1eb73e708cd38b5f6f25e957edd24e9f3a711d0b80cd8835baa9f63e33b784": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.19)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_672",
+      "descripcion": "Opini\u00f3n sobre regular por q\u00fa"
+    }
+  },
+  "4843d15d0ec71758c15e26c89100dfdbd8dc91c08d5a80e2fee0fa5f16d1bcef": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.35)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_519",
+      "descripcion": "Comentario sobre la labor de"
+    }
+  },
+  "3f4dba19c8d4b212c66efcbd22b6c60e193d0de6879e76cf9b445749e8be564f": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.27)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_664",
+      "descripcion": "Referencia a el gobierno actual"
+    }
+  },
+  "db02cafd2ba8cfb762e184f6feeda2b969e50843e3a3a99d43df36123fa9b9a6": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.83)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_100",
+      "descripcion": "Respuesta relacionada con por que si"
+    }
+  },
+  "7b63172c1d7f5b22580a5ed187375b0c08d517c52aa11a87ee4b7b9ad9c8c483": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.20)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_619",
+      "descripcion": "Opini\u00f3n sobre actualmente el senado"
+    }
   },
   "e9d5107a02dfebb28b768e3d848e25449e8987d3a9bfd3c03a3f5c85d7da7322": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.52) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.52)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_9255",
-      "descripcion": "Respuesta relacionada con por lo que"
+      "codigo_sugerido": "NEW_737",
+      "descripcion": "Menci\u00f3n de por lo que"
     }
   },
-  "82ac775dc3f1654768712c34905a7ef2ac26711af5ab1cf7db162d5f40741fd5": {
+  "4b9791191f4b0ddc8ddc22bd5c721afb81547f9d3c1ea7020649879c727f132e": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.33) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.42)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_6504",
-      "descripcion": "Menci\u00f3n de est s personas"
+      "codigo_sugerido": "NEW_857",
+      "descripcion": "Referencia a est s personas"
     }
   },
-  "bec59ede66b4340a83e5bd4984923eac7404f3c2ff7bee458d2d16ab1f27fd16": {
-    "decision": "rechazar",
-    "codigos_asignados": [],
-    "justificacion_breve": "Respuesta irrelevante o vac\u00eda (similitud: 0.18)",
-    "propuesta_codigo_nuevo": null
-  },
-  "ae7ddc643f66b7ac1b52bb0fa4b8e34fc2c4b4599abfcfaa7fc45fcedcfae524": {
+  "c85e24d4f69a0efa9aecc55ab9c957de9bf964fa670179cfb794e7167466a833": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.59) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.85)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_2630",
-      "descripcion": "Menci\u00f3n de se ha visto"
+      "codigo_sugerido": "NEW_149",
+      "descripcion": "Opini\u00f3n sobre por que sigue"
     }
   },
-  "33aabc089e1a2f22021cdc6f267c8b474513f1eff4d5fff6454b1e5970ded6c8": {
+  "1552f4724c765f8bdf48a918618affee044a0424539fd6501be4d9301789e2ec": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.63) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.20)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_4087",
-      "descripcion": "Respuesta relacionada con ha sido clave"
+      "codigo_sugerido": "NEW_203",
+      "descripcion": "Menci\u00f3n de debido al cambio"
     }
   },
-  "5adb06ac4a1a070b1b80b62456923ea5eaa7b191c4401f37828a3b9a08395d20": {
+  "baca85fb261bbeb10d89f2b725e2ba8c0f936ddfc676a320a2ba311efd35613b": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.44) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.59)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_8544",
+      "codigo_sugerido": "NEW_601",
+      "descripcion": "Respuesta relacionada con se ha visto"
+    }
+  },
+  "ee07974b1588923c78a8ffa45e70f6a7ca112d34c6e8ca081411f853de2751f4": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.45)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_721",
       "descripcion": "Respuesta relacionada con han logrado abrirse"
     }
   },
-  "7ecf010f2de7c3fac7b36e78a5e45fd84eb8c8a541e43924892a18508129d4e8": {
+  "7853d9730128b8c576945245767908b39d97c154e9f9add178f10c90b48c41bd": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.63) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.41)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_5608",
-      "descripcion": "Comentario sobre si una de"
+      "codigo_sugerido": "NEW_523",
+      "descripcion": "Menci\u00f3n de si una de"
     }
   },
-  "9cf74be1333551bdea32b21b40fa66f131100d47a6c38739a4c88f1933cfccbf": {
+  "2317b6c9a84096a2609a80d60ee355bde5076b9e5d75c32fecc17a42acb8d648": {
     "decision": "nuevo",
     "codigos_asignados": [],
-    "justificacion_breve": "Similitud insuficiente (0.53) para asignar c\u00f3digo existente",
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.65)",
+    "confianza": 0.7,
     "propuesta_codigo_nuevo": {
-      "codigo_sugerido": "NEW_3517",
-      "descripcion": "Respuesta relacionada con porque han evitado"
+      "codigo_sugerido": "NEW_707",
+      "descripcion": "Menci\u00f3n de es abogado de"
+    }
+  },
+  "271fc22f8b2a9d556606c08791b36927c8e610d09132c346197571ad16bef8e4": {
+    "decision": "nuevo",
+    "codigos_asignados": [],
+    "justificacion_breve": "Tema nuevo no contemplado en cat\u00e1logo (similitud: 0.45)",
+    "confianza": 0.7,
+    "propuesta_codigo_nuevo": {
+      "codigo_sugerido": "NEW_247",
+      "descripcion": "Opini\u00f3n sobre porque han evitado"
     }
   }
 }
