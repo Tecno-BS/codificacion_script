@@ -186,30 +186,40 @@ class CodificadorHibridoV05:
         - "8d. Mencione..." → "P8D"
         - "P12A. Algo..." → "P12A"
         - "12a. ¿Por qué..." → "P12A"
+        - "FC1. ¿Cómo se llama..." → "FC1"
+        - "PA3. Descripción..." → "PA3"
         """
         import re
         
         # Limpiar espacios al inicio/final
         texto = nombre_columna.strip()
         
-        # Patrón 1: "XY." al inicio (ej: "1a.", "5AC.", "8d.", "P12A.", "9A1.")
-        # Captura combinaciones de letras y números antes del primer punto o espacio
-        match = re.match(r'^([a-zA-Z]?\d+[a-zA-Z]*\d*)[.\s]', texto)
+        # Patrón 1: Letras y números al inicio terminados en punto o espacio
+        # Captura: letras (opcionales) + números + letras (opcionales) antes del primer punto o espacio
+        # Ejemplos: "FC1.", "P12A.", "1a.", "5AC.", "PA3."
+        match = re.match(r'^([a-zA-Z]*\d+[a-zA-Z]*\d*)[.\s]', texto)
         
         if match:
             codigo = match.group(1).upper()
             
-            # Normalizar: si no empieza con P, agregar P
-            if not codigo.startswith('P'):
+            # Normalizar: solo agregar P si empieza con número (no con letra)
+            if codigo and codigo[0].isdigit():
                 codigo = 'P' + codigo
             
             return codigo
         
-        # Patrón 2: Solo letras/números al inicio sin punto (ej: "P12", "P1A", "P9A1")
-        match = re.match(r'^(P\d+[A-Z]*\d*)', texto, re.IGNORECASE)
+        # Patrón 2: Solo letras/números al inicio sin punto 
+        # Para códigos tipo "P12", "P1A", "FC1" sin punto
+        match = re.match(r'^([a-zA-Z]+\d+[a-zA-Z]*\d*)', texto, re.IGNORECASE)
         
         if match:
-            return match.group(1).upper()
+            codigo = match.group(1).upper()
+            
+            # Normalizar: solo agregar P si empieza con número
+            if codigo and codigo[0].isdigit():
+                codigo = 'P' + codigo
+                
+            return codigo
         
         return None
     
@@ -417,9 +427,6 @@ class CodificadorHibridoV05:
         print("CODIFICACION COMPLETADA")
         print(f"Costo total: ${self.gpt.costo_total:.4f}")
         print("="*70)
-        
-        # Guardar cache
-        self.gpt.guardar_cache()
         
         return self._filtrar_columnas_exportar(resultados)
     

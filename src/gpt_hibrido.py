@@ -5,7 +5,6 @@ Combina asignacion de catalogo historico + generacion emergente de categorias
 
 import os
 import json
-import hashlib
 import asyncio
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
@@ -80,12 +79,7 @@ class GptHibrido:
             )
         
         self.client = OpenAI(api_key=self.api_key)
-        self.cache = {}
         self.costo_total = 0.0
-        
-        # Cache file
-        self.cache_file = "result/modelos/gpt_hibrido_cache.json"
-        self._cargar_cache()
         
         # Mostrar info del modelo
         if self.is_gpt5_or_later:
@@ -122,37 +116,6 @@ class GptHibrido:
         # Otros modelos sí permiten temperature
         return True
     
-    def _cargar_cache(self):
-        """Carga cache de disco si existe"""
-        try:
-            if os.path.exists(self.cache_file):
-                with open(self.cache_file, 'r', encoding='utf-8') as f:
-                    self.cache = json.load(f)
-                print(f"[CACHE] Cargadas {len(self.cache)} entradas del cache")
-        except Exception as e:
-            print(f"[WARNING] Error al cargar cache: {e}")
-            self.cache = {}
-    
-    def guardar_cache(self):
-        """Guarda cache a disco"""
-        try:
-            os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
-            with open(self.cache_file, 'w', encoding='utf-8') as f:
-                json.dump(self.cache, f, indent=2, ensure_ascii=False)
-            print(f"[CACHE] Guardadas {len(self.cache)} entradas")
-        except Exception as e:
-            print(f"[ERROR] No se pudo guardar cache: {e}")
-    
-    def _cache_key(self, pregunta: str, respuestas: List[RespuestaInput], catalogo: Catalogo) -> str:
-        """Genera clave unica para cache"""
-        # Combinar pregunta + respuestas + catalogo
-        payload = f"{pregunta}|"
-        payload += "|".join([r.texto[:100] for r in respuestas])
-        payload += "|" + "|".join([f"{c['codigo']}:{c['descripcion'][:50]}" for c in catalogo.codigos[:10]])
-        payload += f"|{self.model}"
-        
-        return hashlib.sha256(payload.encode('utf-8')).hexdigest()
-    
     def _build_prompt(
         self, 
         pregunta: str, 
@@ -183,8 +146,17 @@ class GptHibrido:
                 f"[{cod['codigo']}] {cod['descripcion']}"
                 for cod in catalogo.codigos[:100]
             ])
+            # Calcular próximo código numérico disponible
+            codigos_numericos = []
+            for cod in catalogo.codigos:
+                try:
+                    codigos_numericos.append(int(cod['codigo']))
+                except (ValueError, TypeError):
+                    pass
+            proximo_codigo = max(codigos_numericos) + 1 if codigos_numericos else 1
         else:
             catalogo_texto = "No hay catalogo historico disponible para esta pregunta."
+            proximo_codigo = 1
         
         # Formatear respuestas
         respuestas_texto = "\n".join([
@@ -223,10 +195,13 @@ Para CADA respuesta, debes decidir:
 
 **REGLAS IMPORTANTES:**
 1. Precision > Cobertura (mejor dejar sin codigo que asignar incorrecto)
-2. Si creas codigo nuevo, usa formato: NUEVO_[Nombre_Categoria_Descriptivo]
-3. Agrupa multiples respuestas bajo el MISMO codigo nuevo si comparten tema
-4. Para nombres propios (personas, lugares), verifica si ya existe en catalogo
-5. Responde UNICAMENTE en JSON valido (sin texto adicional)
+2. Si creas codigo nuevo, usa numero secuencial: {proximo_codigo}, {proximo_codigo + 1}, {proximo_codigo + 2}, etc.
+3. Las descripciones de codigos nuevos deben ser DIRECTAS y CONCISAS, describiendo exactamente la idea principal
+4. NO uses frases como "Mención sobre...", "Referencias a...", "Menciones de..." en las descripciones
+5. Ejemplos de descripciones correctas: "Regencia de farmacia", "Manejo de medicamentos", "Primeros auxilios"
+6. Agrupa multiples respuestas bajo el MISMO codigo nuevo si comparten tema
+7. Para nombres propios (personas, lugares), verifica si ya existe en catalogo
+8. Responde UNICAMENTE en JSON valido (sin texto adicional)
 
 **FORMATO DE RESPUESTA (JSON):**
 {{
@@ -234,22 +209,22 @@ Para CADA respuesta, debes decidir:
     {{
       "respuesta_num": 1,
       "decision": "asignar",
-      "codigos_historicos": ["50", "25"],
+      "codigos_historicos": ["5", "10"],
       "codigo_nuevo": null,
       "descripcion_nueva": null,
       "idea_principal": null,
       "confianza": 0.95,
-      "justificacion": "Match claro con codigos historicos sobre representacion"
+      "justificacion": "Match claro con codigos historicos"
     }},
     {{
       "respuesta_num": 2,
       "decision": "nuevo",
       "codigos_historicos": [],
-      "codigo_nuevo": "NUEVO_Participacion_Ciudadana",
-      "descripcion_nueva": "Menciones sobre participacion activa de ciudadanos en democracia",
-      "idea_principal": "Importancia de la participacion ciudadana en procesos democraticos",
+      "codigo_nuevo": "{proximo_codigo}",
+      "descripcion_nueva": "Bioquímica farmacéutica",
+      "idea_principal": "Estudios de bioquímica aplicada a farmacia",
       "confianza": 0.88,
-      "justificacion": "Tema emergente no contemplado en catalogo historico"
+      "justificacion": "Tema emergente no contemplado en catalogo"
     }},
     {{
       "respuesta_num": 3,
@@ -263,6 +238,11 @@ Para CADA respuesta, debes decidir:
     }}
   ]
 }}
+
+IMPORTANTE: 
+- Los codigos nuevos deben ser NUMEROS SECUENCIALES empezando desde {proximo_codigo}
+- Las descripciones deben ser DIRECTAS sin "Mención sobre", "Referencias a", etc.
+- Sigue el estilo del catalogo historico en las descripciones
 
 Responde SOLO con el JSON, sin texto adicional."""
         
@@ -287,12 +267,6 @@ Responde SOLO con el JSON, sin texto adicional."""
         Returns:
             Lista de ResultadoCodificacion
         """
-        
-        # Verificar cache
-        cache_key = self._cache_key(pregunta, respuestas, catalogo)
-        if cache_key in self.cache:
-            print(f"[CACHE HIT] Usando resultado cacheado para {len(respuestas)} respuestas")
-            return self._parse_resultados(self.cache[cache_key], respuestas)
         
         # Construir prompt (con contexto)
         prompt = self._build_prompt(pregunta, respuestas, catalogo, contexto)
@@ -387,9 +361,6 @@ Responde SOLO con el JSON, sin texto adicional."""
             self.costo_total += costo
             
             print(f"[GPT] Respuesta recibida. Costo: ${costo:.4f}")
-            
-            # Guardar en cache
-            self.cache[cache_key] = data
             
             # Parse resultados
             return self._parse_resultados(data, respuestas)
