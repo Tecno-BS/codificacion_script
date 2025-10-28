@@ -139,6 +139,9 @@ def configuracion_sidebar():
     if USE_GPT_MOCK:
         st.sidebar.success("✅ Modo MOCK activado")
         st.sidebar.info("Sin costos - Ideal para desarrollo y pruebas")
+        # En modo MOCK, usar el modelo por defecto
+        if 'modelo_gpt' not in st.session_state:
+            st.session_state.modelo_gpt = OPENAI_MODEL
     else:
         st.sidebar.warning("⚡ Modo REAL activado")
         
@@ -196,6 +199,10 @@ def configuracion_sidebar():
     
     # Información del sistema
     st.sidebar.subheader("ℹ️ Información")
+    
+    # Mostrar modelo seleccionado dinámicamente
+    modelo_actual = st.session_state.get('modelo_gpt', OPENAI_MODEL)
+    
     st.sidebar.info("""
 **Versión:** v0.5 Híbrida
 
@@ -207,7 +214,7 @@ def configuracion_sidebar():
 - ✅ Códigos históricos + nuevos
 
 **Modelo:** {model}
-    """.format(model=OPENAI_MODEL))
+    """.format(model=modelo_actual))
 
 
 def cargar_archivos():
@@ -640,8 +647,9 @@ def mostrar_estado():
     else:
         st.metric("Modo", "⚡ REAL")
     
-    # Modelo
-    st.metric("Modelo GPT", OPENAI_MODEL)
+    # Modelo - Mostrar el seleccionado dinámicamente
+    modelo_actual = st.session_state.get('modelo_gpt', OPENAI_MODEL)
+    st.metric("Modelo GPT", modelo_actual)
     
 
 

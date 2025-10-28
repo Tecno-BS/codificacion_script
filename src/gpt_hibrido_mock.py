@@ -24,15 +24,10 @@ class GptHibridoMock:
     
     def __init__(self, model: str = "gpt-4o-mini-mock", api_key: Optional[str] = None):
         self.model = model
-        self.cache = {}
         self.costo_total = 0.0
         
         print(f"[MOCK] Iniciando GPT Hibrido Mock (Modelo: {self.model})")
         print("[MOCK] No se consumira API real de OpenAI")
-    
-    def guardar_cache(self):
-        """Mock: no guarda cache en disco"""
-        print(f"[MOCK] Cache simulado: {len(self.cache)} entradas")
     
     async def codificar_batch(
         self, 
@@ -179,38 +174,48 @@ class GptHibridoMock:
                     justificacion=f"[MOCK] Match medio con catalogo ({max_palabras_comunes} palabras comunes)"
                 )
             else:
-                return self._generar_codigo_nuevo(respuesta, "match_medio")
+                return self._generar_codigo_nuevo(respuesta, catalogo, "match_medio")
         
         # Caso 5: Sin match - crear nuevo
         else:
-            return self._generar_codigo_nuevo(respuesta, "sin_match")
+            return self._generar_codigo_nuevo(respuesta, catalogo, "sin_match")
     
     def _generar_codigo_nuevo(
         self, 
         respuesta: RespuestaInput,
+        catalogo: Catalogo,
         razon: str
     ) -> ResultadoCodificacion:
         """
-        Genera un codigo nuevo simulado
+        Genera un codigo nuevo simulado con numero secuencial
         """
         
-        # Extraer primeras palabras significativas (>3 letras) para nombre categoria
+        # Calcular próximo código numérico disponible
+        codigos_numericos = []
+        for cod in catalogo.codigos:
+            try:
+                codigos_numericos.append(int(cod['codigo']))
+            except (ValueError, TypeError):
+                pass
+        proximo_codigo = max(codigos_numericos) + 1 if codigos_numericos else 1
+        
+        # Extraer primeras palabras significativas (>3 letras) para descripción
         palabras = [p for p in respuesta.texto.split() if len(p) > 3]
         palabras_categoria = palabras[:3] if len(palabras) >= 3 else palabras
         
-        # Generar nombre de categoria
+        # Generar descripción DIRECTA (sin "Menciones sobre...", "Referencias a...")
+        # Estilo: "Regencia de farmacia", "Manejo de medicamentos", etc.
         if palabras_categoria:
-            nombre_categoria = "_".join([p.capitalize() for p in palabras_categoria])
+            # Capitalizar primera letra de cada palabra
+            descripcion = " ".join([p.capitalize() for p in palabras_categoria])
         else:
-            nombre_categoria = f"Categoria_{random.randint(100, 999)}"
+            descripcion = f"Categoría emergente {random.randint(100, 999)}"
         
-        codigo_nuevo = f"NUEVO_{nombre_categoria}"
-        
-        # Generar descripcion simulada
-        descripcion = f"Menciones sobre {' '.join(palabras_categoria[:2])}"
-        
-        # Generar idea principal simulada
-        idea_principal = f"Respuestas que mencionan {' '.join(palabras_categoria[:2])}"
+        # Generar idea principal más detallada
+        if len(palabras) > 3:
+            idea_principal = " ".join([p.capitalize() for p in palabras[:5]])
+        else:
+            idea_principal = descripcion
         
         confianza = 0.75 if razon == "match_medio" else 0.65
         justificacion_razon = "similitud media con catalogo" if razon == "match_medio" else "tema no contemplado en catalogo"
@@ -219,7 +224,7 @@ class GptHibridoMock:
             respuesta_id=respuesta.id,
             decision="nuevo",
             codigos_historicos=[],
-            codigo_nuevo=codigo_nuevo,
+            codigo_nuevo=str(proximo_codigo),  # Código numérico secuencial
             descripcion_nueva=descripcion,
             idea_principal=idea_principal,
             confianza=confianza,
