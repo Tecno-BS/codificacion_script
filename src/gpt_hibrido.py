@@ -39,13 +39,32 @@ class Catalogo:
 class ResultadoCodificacion:
     """Resultado de codificacion para una respuesta"""
     respuesta_id: str
-    decision: str  # "asignar", "nuevo", "rechazar"
-    codigos_historicos: List[str]  # ["50", "25"]
-    codigo_nuevo: Optional[str]  # "NUEVO_Participacion_Ciudadana"
-    descripcion_nueva: Optional[str]
+    decision: str  # "asignar", "nuevo", "mixto", "rechazar"
+    codigos_historicos: List[str]  # ["50", "25"] - Múltiples códigos del catálogo
+    codigo_nuevo: Optional[str]  # "24" - Para compatibilidad (usar codigos_nuevos)
+    descripcion_nueva: Optional[str]  # Para compatibilidad (usar descripciones_nuevas)
     idea_principal: Optional[str]
     confianza: float
     justificacion: str
+    # Nuevos campos para multicodificación completa
+    codigos_nuevos: List[str] = None  # ["24", "25"] - Múltiples códigos nuevos
+    descripciones_nuevas: List[str] = None  # ["Enfermería", "Nutrición"]
+    
+    def __post_init__(self):
+        """Normalizar campos después de inicialización"""
+        # Si codigos_nuevos es None, inicializar como lista vacía
+        if self.codigos_nuevos is None:
+            self.codigos_nuevos = []
+            # Si hay codigo_nuevo (singular), migrar a la lista
+            if self.codigo_nuevo:
+                self.codigos_nuevos = [self.codigo_nuevo]
+        
+        # Si descripciones_nuevas es None, inicializar como lista vacía
+        if self.descripciones_nuevas is None:
+            self.descripciones_nuevas = []
+            # Si hay descripcion_nueva (singular), migrar a la lista
+            if self.descripcion_nueva:
+                self.descripciones_nuevas = [self.descripcion_nueva]
 
 
 class GptHibrido:
@@ -179,29 +198,57 @@ class GptHibrido:
 
 Para CADA respuesta, debes decidir:
 
-**OPCION A: ASIGNAR CODIGO(S) DEL CATALOGO** si:
+**OPCION A: ASIGNAR CODIGO(S) DEL CATALOGO** (decision: "asignar") si:
    - La respuesta encaja claramente con codigo(s) existente(s)
-   - Puedes asignar multiples codigos si aplican diferentes temas
+   - Puedes asignar MULTIPLES codigos si la respuesta toca diferentes temas del catálogo
    - Solo si la similitud semantica es alta (>85%)
 
-**OPCION B: CREAR CODIGO NUEVO** si:
+**OPCION B: CREAR CODIGO(S) NUEVO(S)** (decision: "nuevo") si:
    - La respuesta NO encaja bien con ningun codigo del catalogo
-   - Representa un tema/categoria emergente no contemplado
+   - Representa tema(s)/categoria(s) emergente(s) no contemplado(s)
+   - Puedes crear MULTIPLES codigos nuevos si la respuesta toca varios temas nuevos
    - Agrupa con otras respuestas similares bajo la MISMA categoria nueva
 
-**OPCION C: RECHAZAR** si:
+**OPCION C: MODO MIXTO** (decision: "mixto") si:
+   - La respuesta combina codigos existentes Y temas nuevos
+   - Asigna codigos del catalogo para lo conocido
+   - Crea codigos nuevos para lo emergente
+
+**OPCION D: RECHAZAR** (decision: "rechazar") si:
    - La respuesta es irrelevante, vacia o incoherente
    - No aporta informacion sustantiva
 
 **REGLAS IMPORTANTES:**
-1. Precision > Cobertura (mejor dejar sin codigo que asignar incorrecto)
-2. Si creas codigo nuevo, usa numero secuencial: {proximo_codigo}, {proximo_codigo + 1}, {proximo_codigo + 2}, etc.
-3. Las descripciones de codigos nuevos deben ser DIRECTAS y CONCISAS, describiendo exactamente la idea principal
-4. NO uses frases como "Mención sobre...", "Referencias a...", "Menciones de..." en las descripciones
-5. Ejemplos de descripciones correctas: "Regencia de farmacia", "Manejo de medicamentos", "Primeros auxilios"
-6. Agrupa multiples respuestas bajo el MISMO codigo nuevo si comparten tema
-7. Para nombres propios (personas, lugares), verifica si ya existe en catalogo
-8. Responde UNICAMENTE en JSON valido (sin texto adicional)
+
+1. **Precision > Cobertura** (mejor dejar sin codigo que asignar incorrecto)
+
+2. **Codigos numericos secuenciales:** {proximo_codigo}, {proximo_codigo + 1}, {proximo_codigo + 2}, etc.
+
+3. **Nivel de especificidad - CRITICO:**
+   - ✅ CORRECTO: "Versatilidad de uso"
+   - ❌ INCORRECTO: "Versatilidad de uso en comidas", "Versatilidad en cocina"
+   - Principio: Si dos descripciones comparten la MISMA IDEA CENTRAL, deben usar el MISMO codigo
+   
+4. **Agrupa bajo el MISMO codigo si:**
+   - Comparten el tema/concepto principal
+   - Solo difieren en detalles o contexto especifico
+   - Ejemplo: "Sabor agradable", "Buen sabor", "Sabor rico" → MISMO codigo "Sabor"
+   
+5. **Crea CODIGOS SEPARADOS solo si:**
+   - Son temas REALMENTE distintos e independientes
+   - No se pueden agrupar bajo una categoria comun
+   - Ejemplo: "Sabor" vs "Textura" vs "Precio" → Diferentes codigos
+
+6. **Descripciones GENERALES pero CLARAS:**
+   - ✅ BIEN: "Precio accesible", "Sabor", "Textura", "Calidad nutricional"
+   - ❌ MAL: "Precio accesible para familias", "Sabor dulce natural", "Textura suave"
+   - Usa el nivel de abstraccion del catalogo historico como referencia
+
+7. **NO uses frases como:** "Mención sobre...", "Referencias a...", "Menciones de..."
+
+8. **Para nombres propios** (personas, lugares), verifica si ya existe en catalogo
+
+9. **Responde UNICAMENTE en JSON valido** (sin texto adicional)
 
 **FORMATO DE RESPUESTA (JSON):**
 {{
@@ -210,28 +257,38 @@ Para CADA respuesta, debes decidir:
       "respuesta_num": 1,
       "decision": "asignar",
       "codigos_historicos": ["5", "10"],
-      "codigo_nuevo": null,
-      "descripcion_nueva": null,
+      "codigos_nuevos": [],
+      "descripciones_nuevas": [],
       "idea_principal": null,
       "confianza": 0.95,
-      "justificacion": "Match claro con codigos historicos"
+      "justificacion": "Respuesta menciona dos temas del catálogo"
     }},
     {{
       "respuesta_num": 2,
       "decision": "nuevo",
       "codigos_historicos": [],
-      "codigo_nuevo": "{proximo_codigo}",
-      "descripcion_nueva": "Bioquímica farmacéutica",
-      "idea_principal": "Estudios de bioquímica aplicada a farmacia",
+      "codigos_nuevos": ["{proximo_codigo}", "{proximo_codigo + 1}"],
+      "descripciones_nuevas": ["Bioquímica farmacéutica", "Química orgánica"],
+      "idea_principal": "Estudios de bioquímica y química aplicada a farmacia",
       "confianza": 0.88,
-      "justificacion": "Tema emergente no contemplado en catalogo"
+      "justificacion": "Respuesta menciona dos temas emergentes no contemplados"
     }},
     {{
       "respuesta_num": 3,
+      "decision": "mixto",
+      "codigos_historicos": ["5"],
+      "codigos_nuevos": ["{proximo_codigo + 2}"],
+      "descripciones_nuevas": ["Cosmiatría"],
+      "idea_principal": "Enfermería (histórico) y cosmiatría (nuevo)",
+      "confianza": 0.90,
+      "justificacion": "Combina tema conocido con tema emergente"
+    }},
+    {{
+      "respuesta_num": 4,
       "decision": "rechazar",
       "codigos_historicos": [],
-      "codigo_nuevo": null,
-      "descripcion_nueva": null,
+      "codigos_nuevos": [],
+      "descripciones_nuevas": [],
       "idea_principal": null,
       "confianza": 0.92,
       "justificacion": "Respuesta vacia o irrelevante"
@@ -253,7 +310,8 @@ Responde SOLO con el JSON, sin texto adicional."""
         pregunta: str,
         respuestas: List[RespuestaInput], 
         catalogo: Catalogo,
-        contexto: Optional[ContextoProyecto] = None
+        contexto: Optional[ContextoProyecto] = None,
+        normalizar: bool = True
     ) -> List[ResultadoCodificacion]:
         """
         Codifica un batch de respuestas usando GPT en modo hibrido
@@ -363,7 +421,7 @@ Responde SOLO con el JSON, sin texto adicional."""
             print(f"[GPT] Respuesta recibida. Costo: ${costo:.4f}")
             
             # Parse resultados
-            return self._parse_resultados(data, respuestas)
+            return self._parse_resultados(data, respuestas, catalogo, normalizar)
             
         except Exception as e:
             print(f"[ERROR] Error en llamada a GPT: {e}")
@@ -385,7 +443,9 @@ Responde SOLO con el JSON, sin texto adicional."""
     def _parse_resultados(
         self, 
         data: Dict[str, Any], 
-        respuestas: List[RespuestaInput]
+        respuestas: List[RespuestaInput],
+        catalogo: Catalogo,
+        normalizar: bool = True
     ) -> List[ResultadoCodificacion]:
         """Parse JSON de respuesta de GPT a objetos ResultadoCodificacion"""
         
@@ -414,27 +474,135 @@ Responde SOLO con el JSON, sin texto adicional."""
                 ))
                 continue
             
-            # Parse resultado (convertir codigos a string por si vienen como int)
+            # Parse códigos históricos (siempre lista)
             codigos_hist = cod_data.get('codigos_historicos', [])
             codigos_hist_str = [str(c) for c in codigos_hist] if codigos_hist else []
             
-            # Asegurar que codigo_nuevo también sea string si existe
-            codigo_nuevo = cod_data.get('codigo_nuevo')
-            if codigo_nuevo is not None:
-                codigo_nuevo = str(codigo_nuevo)
+            # Parse códigos nuevos (soportar formato antiguo y nuevo)
+            codigos_nuevos_raw = cod_data.get('codigos_nuevos', [])
+            if not codigos_nuevos_raw:
+                # Backward compatibility: si no hay codigos_nuevos (lista), revisar codigo_nuevo (singular)
+                codigo_nuevo = cod_data.get('codigo_nuevo')
+                if codigo_nuevo is not None:
+                    codigos_nuevos_raw = [codigo_nuevo]
+            
+            # Convertir a strings
+            codigos_nuevos_str = [str(c) for c in codigos_nuevos_raw] if codigos_nuevos_raw else []
+            
+            # Parse descripciones nuevas
+            descripciones_nuevas = cod_data.get('descripciones_nuevas', [])
+            if not descripciones_nuevas:
+                # Backward compatibility: revisar descripcion_nueva (singular)
+                descripcion_nueva = cod_data.get('descripcion_nueva')
+                if descripcion_nueva:
+                    descripciones_nuevas = [descripcion_nueva]
+            
+            # Para compatibilidad, mantener los campos singulares
+            codigo_nuevo_singular = codigos_nuevos_str[0] if codigos_nuevos_str else None
+            descripcion_nueva_singular = descripciones_nuevas[0] if descripciones_nuevas else None
             
             resultados.append(ResultadoCodificacion(
                 respuesta_id=resp.id,
                 decision=cod_data.get('decision', 'error'),
                 codigos_historicos=codigos_hist_str,
-                codigo_nuevo=codigo_nuevo,
-                descripcion_nueva=cod_data.get('descripcion_nueva'),
+                codigo_nuevo=codigo_nuevo_singular,  # Compatibilidad
+                descripcion_nueva=descripcion_nueva_singular,  # Compatibilidad
                 idea_principal=cod_data.get('idea_principal'),
                 confianza=cod_data.get('confianza', 0.0),
-                justificacion=cod_data.get('justificacion', '')
+                justificacion=cod_data.get('justificacion', ''),
+                codigos_nuevos=codigos_nuevos_str,  # NUEVO: lista completa
+                descripciones_nuevas=descripciones_nuevas  # NUEVO: lista completa
             ))
         
+        # Normalizar códigos nuevos SOLO si se solicita (normalizar=True)
+        # Cuando normalizar=False, el codificador hará la normalización global
+        if normalizar:
+            resultados = self._normalizar_codigos_nuevos(resultados, catalogo)
+        
         return resultados
+    
+    def _normalizar_codigos_nuevos(
+        self, 
+        resultados: List[ResultadoCodificacion],
+        catalogo: Catalogo
+    ) -> List[ResultadoCodificacion]:
+        """
+        Normaliza códigos nuevos para evitar duplicaciones
+        - IGNORA completamente los códigos que GPT generó
+        - Asigna números secuenciales únicos basándose SOLO en descripciones únicas
+        - Garantiza que cada descripción diferente tiene un código diferente
+        """
+        # Calcular próximo código disponible del catálogo
+        codigos_numericos = []
+        for cod in catalogo.codigos:
+            try:
+                codigos_numericos.append(int(cod['codigo']))
+            except (ValueError, TypeError):
+                pass
+        proximo_codigo = max(codigos_numericos) + 1 if codigos_numericos else 1
+        
+        print(f"[NORMALIZACION] Próximo código disponible: {proximo_codigo}")
+        
+        # Mapeo: descripción normalizada -> código asignado
+        # IMPORTANTE: ignoramos el código que GPT generó y asignamos uno nuevo
+        mapa_codigos = {}
+        codigo_actual = proximo_codigo
+        
+        # Primera pasada: asignar códigos únicos a cada descripción ÚNICA
+        # Procesar en orden de aparición
+        descripciones_vistas = set()
+        for resultado in resultados:
+            if resultado.decision == "nuevo" and resultado.descripcion_nueva:
+                # Normalizar descripción (lowercase, sin espacios extras)
+                desc_norm = resultado.descripcion_nueva.lower().strip()
+                
+                # Si ya vimos esta descripción, reutilizar su código
+                if desc_norm in mapa_codigos:
+                    print(f"[NORMALIZACION] Descripción duplicada detectada: '{desc_norm[:50]}...' -> reutilizar código {mapa_codigos[desc_norm]}")
+                else:
+                    # Descripción nueva, asignar código secuencial
+                    mapa_codigos[desc_norm] = str(codigo_actual)
+                    print(f"[NORMALIZACION] Nueva descripción [{codigo_actual}]: '{desc_norm[:60]}...'")
+                    codigo_actual += 1
+        
+        # Segunda pasada: actualizar TODOS los resultados con códigos normalizados
+        resultados_normalizados = []
+        codigos_reasignados = 0
+        
+        for resultado in resultados:
+            if resultado.decision == "nuevo" and resultado.descripcion_nueva:
+                desc_norm = resultado.descripcion_nueva.lower().strip()
+                codigo_correcto = mapa_codigos[desc_norm]
+                
+                # Log si el código cambió
+                if str(resultado.codigo_nuevo) != str(codigo_correcto):
+                    print(f"[NORMALIZACION] Código corregido: '{resultado.codigo_nuevo}' -> '{codigo_correcto}' para '{resultado.descripcion_nueva[:40]}...'")
+                    codigos_reasignados += 1
+                
+                # Crear nuevo resultado con código corregido
+                resultado_nuevo = ResultadoCodificacion(
+                    respuesta_id=resultado.respuesta_id,
+                    decision=resultado.decision,
+                    codigos_historicos=resultado.codigos_historicos,
+                    codigo_nuevo=codigo_correcto,
+                    descripcion_nueva=resultado.descripcion_nueva,
+                    idea_principal=resultado.idea_principal,
+                    confianza=resultado.confianza,
+                    justificacion=resultado.justificacion
+                )
+                resultados_normalizados.append(resultado_nuevo)
+            else:
+                # Mantener resultado sin cambios
+                resultados_normalizados.append(resultado)
+        
+        # Log resumen de normalización
+        if mapa_codigos:
+            print(f"\n[NORMALIZACION COMPLETADA]")
+            print(f"  • {len(mapa_codigos)} código(s) único(s) asignado(s)")
+            print(f"  • {codigos_reasignados} código(s) corregido(s)")
+            print(f"  • Rango: {proximo_codigo} - {codigo_actual - 1}")
+        
+        return resultados_normalizados
     
     def _calcular_costo(self, prompt_tokens: int, completion_tokens: int) -> float:
         """Calcula costo basado en tokens y modelo"""

@@ -22,7 +22,7 @@ from extractor_contexto import ExtractorContexto
 
 # Configuración página
 st.set_page_config(
-    page_title="Codificación Híbrida v0.5 - BS",
+    page_title="Codificación Híbrida - BS",
     page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -30,7 +30,7 @@ st.set_page_config(
 
 
 def main():
-    st.title("🚀 Sistema de Codificación Híbrida v0.5")
+    st.title("🚀 Sistema de Codificación Automatizada")
     st.markdown("---")
 
     configuracion_sidebar()
@@ -449,7 +449,7 @@ def ejecutar_codificacion(archivos, contexto: ContextoProyecto):
 
     try:
         # 1. Inicializar (con contexto)
-        status_text.text("🔧 Inicializando codificador v0.5...")
+        status_text.text("🔧 Inicializando codificador...")
         progress_bar.progress(10)
 
         # Obtener modelo seleccionado (o usar default)
@@ -476,13 +476,23 @@ def ejecutar_codificacion(archivos, contexto: ContextoProyecto):
             st.info("ℹ️ Modo generación pura (sin catálogos)")
 
         # 4. Codificar con GPT
-        status_text.text("🤖 Codificando con GPT (esto puede tardar)...")
+        status_text.text("🤖 Iniciando codificación con GPT...")
         progress_bar.progress(40)
         
-        # Ejecutar codificación async
-        resultados = asyncio.run(codificador.codificar_todas_preguntas())
+        # Callback para actualizar progreso
+        def actualizar_progreso(progreso: float, mensaje: str):
+            # Escalar progreso entre 40% y 80% (reservando inicio y fin para otras tareas)
+            progreso_escalado = 0.40 + (progreso * 0.40)
+            progress_bar.progress(progreso_escalado)
+            status_text.text(mensaje)
+        
+        # Ejecutar codificación async con callback
+        resultados = asyncio.run(
+            codificador.codificar_todas_preguntas(progress_callback=actualizar_progreso)
+        )
         
         progress_bar.progress(80)
+        status_text.text("📊 Procesando resultados finales...")
 
         # 5. Guardar resultados
         status_text.text("💾 Guardando resultados...")
@@ -561,10 +571,22 @@ def mostrar_resultados(resultados, ruta_resultados, ruta_codigos_nuevos, codific
             if 'excel_bytes_resultados' not in st.session_state:
                 st.session_state.excel_bytes_resultados = df_a_excel_bytes(resultados)
             
+            # Generar nombre de archivo dinámico con pregunta y modelo
+            preguntas = list(codificador.mapeo_columnas.values())
+            pregunta_principal = preguntas[0] if preguntas else "codificacion"
+            modelo_actual = st.session_state.get('modelo_gpt', 'gpt')
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            
+            # Limpiar nombre de pregunta para usar en archivo (máximo 30 caracteres)
+            pregunta_limpia = ''.join(c for c in pregunta_principal if c.isalnum() or c in ' _-')[:30]
+            pregunta_limpia = pregunta_limpia.replace(' ', '_')
+            
+            nombre_archivo = f"{pregunta_limpia}_{modelo_actual}_{timestamp}.xlsx"
+            
             st.download_button(
                         label="⬇️ Descargar Resultados (.xlsx)",
                         data=st.session_state.excel_bytes_resultados,
-                file_name=f"codificacion_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                file_name=nombre_archivo,
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True,
                         key="download_resultados"

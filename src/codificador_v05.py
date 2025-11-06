@@ -25,12 +25,6 @@ else:
 
 
 class CodificadorHibridoV05:
-    """
-    Codificador simplificado v0.5
-    - Sin embeddings
-    - GPT directo con modo dual (asignar + generar)
-    - Mas rapido y preciso
-    """
     
     def __init__(self, contexto: Optional[ContextoProyecto] = None, modelo: str = "gpt-4o-mini"):
         self.gpt = GptHibrido(model=modelo)
@@ -327,9 +321,13 @@ class CodificadorHibridoV05:
             print(f"[ERROR] Error al procesar respuestas: {e}")
             return False
     
-    async def codificar_todas_preguntas(self) -> pd.DataFrame:
+    async def codificar_todas_preguntas(self, progress_callback=None) -> pd.DataFrame:
         """
         Codifica todas las preguntas usando GPT Hibrido
+        
+        Args:
+            progress_callback: Función opcional para reportar progreso
+                              Recibe: (progreso: float 0-1, mensaje: str)
         """
         if self.respuestas_procesadas is None:
             raise ValueError("Debe procesar respuestas primero")
@@ -340,8 +338,19 @@ class CodificadorHibridoV05:
         print("INICIANDO CODIFICACION v0.5 (GPT HIBRIDO)")
         print("="*70)
         
-        for columna, pregunta in self.mapeo_columnas.items():
+        # Calcular progreso total
+        total_preguntas = len(self.mapeo_columnas)
+        
+        for idx_pregunta, (columna, pregunta) in enumerate(self.mapeo_columnas.items(), 1):
             print(f"\n--- Procesando {pregunta} ---")
+            
+            # Reportar progreso: inicio de pregunta
+            if progress_callback:
+                progreso_pregunta = (idx_pregunta - 1) / total_preguntas
+                progress_callback(
+                    progreso_pregunta,
+                    f"📋 Pregunta {idx_pregunta}/{total_preguntas}: {pregunta}"
+                )
             
             # Obtener catalogo (o crear vacio si no existe)
             catalogo = self.catalogos.get(pregunta, Catalogo(pregunta=pregunta, codigos=[]))
@@ -370,11 +379,28 @@ class CodificadorHibridoV05:
             # Crear batches de ~20 respuestas para GPT
             batch_size = 20
             total_respuestas = len(respuestas_validas)
+            total_batches = (total_respuestas - 1) // batch_size + 1
             
             print(f"[v0.5] Procesando {total_respuestas} respuestas en batches de {batch_size}")
             
+            # Acumular TODAS las codificaciones de esta pregunta para normalizar al final
+            todas_codificaciones_pregunta = []
+            
             for i in range(0, total_respuestas, batch_size):
                 batch_df = respuestas_validas.iloc[i:i+batch_size]
+                batch_num = i // batch_size + 1
+                
+                # Reportar progreso: batch actual
+                if progress_callback:
+                    # Calcular progreso dentro de esta pregunta
+                    progreso_en_pregunta = (batch_num - 1) / total_batches
+                    progreso_global = (idx_pregunta - 1 + progreso_en_pregunta) / total_preguntas
+                    
+                    respuestas_procesadas = min(i + batch_size, total_respuestas)
+                    progress_callback(
+                        progreso_global,
+                        f"🤖 {pregunta} | Batch {batch_num}/{total_batches} ({respuestas_procesadas}/{total_respuestas} respuestas)"
+                    )
                 
                 # Preparar respuestas para GPT
                 respuestas_batch = [
@@ -386,42 +412,70 @@ class CodificadorHibridoV05:
                     for idx, row in batch_df.iterrows()
                 ]
                 
-                # Codificar con GPT (con contexto)
-                print(f"[v0.5] Batch {i//batch_size + 1}/{(total_respuestas-1)//batch_size + 1}")
+                # Codificar con GPT (con contexto) - SIN normalizar aún
+                print(f"[v0.5] Batch {batch_num}/{total_batches}")
                 codificaciones = await self.gpt.codificar_batch(
                     pregunta=pregunta,
                     respuestas=respuestas_batch,
                     catalogo=catalogo,
-                    contexto=self.contexto
+                    contexto=self.contexto,
+                    normalizar=False  # NO normalizar dentro del batch
                 )
                 
-                # Aplicar resultados
-                for cod in codificaciones:
-                    idx = int(cod.respuesta_id)
+                # Acumular codificaciones (no aplicar aún)
+                todas_codificaciones_pregunta.extend(codificaciones)
+            
+            # AHORA: Normalizar TODOS los códigos nuevos de esta pregunta juntos
+            print(f"[NORMALIZACION] Procesando {len(todas_codificaciones_pregunta)} codificaciones de {pregunta}")
+            todas_codificaciones_pregunta = self._normalizar_codigos_pregunta(
+                todas_codificaciones_pregunta, 
+                catalogo
+            )
+            
+            # FINALMENTE: Aplicar resultados normalizados
+            for cod in todas_codificaciones_pregunta:
+                idx = int(cod.respuesta_id)
+                
+                resultados.at[idx, f'{pregunta}_decision'] = cod.decision
+                resultados.at[idx, f'{pregunta}_confianza'] = cod.confianza
+                resultados.at[idx, f'{pregunta}_justificacion'] = cod.justificacion
+                
+                # COLUMNA UNIFICADA DE CÓDIGO
+                # Prioridad: históricos > nuevos > vacío (rechazado)
+                codigos_asignados = []
+                
+                # 1. Agregar códigos históricos si existen
+                if cod.codigos_historicos:
+                    codigos_str = [str(c) for c in cod.codigos_historicos]
+                    codigos_asignados.extend(codigos_str)
+                
+                # 2. Agregar códigos nuevos si existen
+                if cod.codigos_nuevos:
+                    codigos_asignados.extend(cod.codigos_nuevos)
+                
+                # 3. Guardar en columna unificada
+                if codigos_asignados:
+                    resultados.at[idx, f'{pregunta}_codigo'] = ";".join(codigos_asignados)
+                
+                # Descripción solo para códigos NUEVOS
+                if cod.codigos_nuevos and cod.descripciones_nuevas:
+                    resultados.at[idx, f'{pregunta}_descripcion_nueva'] = " | ".join(cod.descripciones_nuevas)
                     
-                    resultados.at[idx, f'{pregunta}_decision'] = cod.decision
-                    resultados.at[idx, f'{pregunta}_confianza'] = cod.confianza
-                    resultados.at[idx, f'{pregunta}_justificacion'] = cod.justificacion
-                    
-                    if cod.decision == "asignar" and cod.codigos_historicos:
-                        # Asignacion de catalogo (convertir a string por si vienen como int)
-                        codigos_str = [str(c) for c in cod.codigos_historicos]
-                        resultados.at[idx, f'{pregunta}_codigo_historico'] = ";".join(codigos_str)
-                    
-                    elif cod.decision == "nuevo" and cod.codigo_nuevo:
-                        # Codigo nuevo generado
-                        resultados.at[idx, f'{pregunta}_codigo_nuevo'] = cod.codigo_nuevo
-                        resultados.at[idx, f'{pregunta}_descripcion_nueva'] = cod.descripcion_nueva
-                        
-                        # Guardar para catalogo consolidado
+                    # Guardar CADA código nuevo para catalogo consolidado
+                    for i, codigo_nuevo in enumerate(cod.codigos_nuevos):
+                        descripcion = cod.descripciones_nuevas[i] if i < len(cod.descripciones_nuevas) else ""
                         self.codigos_nuevos.append({
                             'pregunta': pregunta,
-                            'codigo_nuevo': cod.codigo_nuevo,
-                            'descripcion': cod.descripcion_nueva,
+                            'codigo_nuevo': codigo_nuevo,
+                            'descripcion': descripcion,
                             'idea_principal': cod.idea_principal
                         })
             
             print(f"[v0.5] Codificacion completada para {pregunta}")
+        
+        # Reportar progreso: completado
+        if progress_callback:
+            progress_callback(1.0, f"✅ Todas las preguntas procesadas ({total_preguntas}/{total_preguntas})")
         
         print("\n" + "="*70)
         print("CODIFICACION COMPLETADA")
@@ -429,6 +483,183 @@ class CodificadorHibridoV05:
         print("="*70)
         
         return self._filtrar_columnas_exportar(resultados)
+    
+    def _similitud_descripciones(self, desc1: str, desc2: str) -> float:
+        """
+        Calcula similitud entre dos descripciones (0.0 a 1.0)
+        Detecta redundancias como "Versatilidad de uso" vs "Versatilidad de uso en comidas"
+        """
+        # Normalizar: minúsculas, sin tildes, sin puntuación
+        import unicodedata
+        import re
+        
+        def normalizar(texto):
+            # Remover tildes
+            texto = ''.join(
+                c for c in unicodedata.normalize('NFD', texto)
+                if unicodedata.category(c) != 'Mn'
+            )
+            # Minúsculas y solo letras/espacios
+            texto = re.sub(r'[^a-z0-9\s]', ' ', texto.lower())
+            # Remover palabras vacías comunes
+            stop_words = {'de', 'del', 'la', 'el', 'en', 'para', 'por', 'con', 'sin', 'sobre', 'a', 'y', 'o'}
+            palabras = [p for p in texto.split() if p and p not in stop_words]
+            return set(palabras), ' '.join(palabras)
+        
+        palabras1, texto1 = normalizar(desc1)
+        palabras2, texto2 = normalizar(desc2)
+        
+        if not palabras1 or not palabras2:
+            return 0.0
+        
+        # Caso 1: Una descripción contiene completamente a la otra
+        # "Versatilidad uso" está contenido en "Versatilidad uso comidas"
+        if texto1 in texto2 or texto2 in texto1:
+            return 0.95  # Muy similar
+        
+        # Caso 2: Similitud de Jaccard (intersección / unión)
+        interseccion = len(palabras1 & palabras2)
+        union = len(palabras1 | palabras2)
+        similitud_jaccard = interseccion / union if union > 0 else 0.0
+        
+        # Caso 3: Si comparten todas las palabras clave (>80% de la más corta)
+        min_palabras = min(len(palabras1), len(palabras2))
+        if interseccion >= min_palabras * 0.8:
+            return 0.90
+        
+        return similitud_jaccard
+    
+    def _normalizar_codigos_pregunta(
+        self, 
+        codificaciones: List,
+        catalogo
+    ) -> List:
+        """
+        Normaliza códigos nuevos para UNA pregunta completa
+        Garantiza que cada descripción ÚNICA tiene un código ÚNICO
+        Detecta y unifica descripciones similares/redundantes
+        Soporta múltiples códigos nuevos por respuesta
+        """
+        from gpt_hibrido import ResultadoCodificacion
+        
+        # Calcular próximo código disponible del catálogo
+        codigos_numericos = []
+        for cod in catalogo.codigos:
+            try:
+                codigos_numericos.append(int(cod['codigo']))
+            except (ValueError, TypeError):
+                pass
+        proximo_codigo = max(codigos_numericos) + 1 if codigos_numericos else 1
+        
+        print(f"\n{'='*70}")
+        print(f"[NORMALIZACION] Código inicial: {proximo_codigo}")
+        print(f"{'='*70}")
+        
+        # Recolectar TODAS las descripciones únicas
+        descripciones_originales = []
+        for cod in codificaciones:
+            if (cod.decision in ["nuevo", "mixto"]) and cod.descripciones_nuevas:
+                for desc in cod.descripciones_nuevas:
+                    if desc not in descripciones_originales:
+                        descripciones_originales.append(desc)
+        
+        # Agrupar descripciones similares
+        # Mapeo: descripción original -> descripción representativa
+        mapa_unificacion = {}
+        descripciones_representativas = []
+        
+        umbral_similitud = 0.85  # 85% de similitud para considerar redundantes
+        
+        for desc in descripciones_originales:
+            # Buscar si es similar a alguna descripción ya agregada
+            es_redundante = False
+            
+            for desc_rep in descripciones_representativas:
+                similitud = self._similitud_descripciones(desc, desc_rep)
+                
+                if similitud >= umbral_similitud:
+                    # Es redundante, mapear a la representativa
+                    mapa_unificacion[desc] = desc_rep
+                    es_redundante = True
+                    print(f"[SIMILITUD {similitud:.2f}] '{desc}' → '{desc_rep}' (unificado)")
+                    break
+            
+            if not es_redundante:
+                # Es una descripción única, agregar como representativa
+                mapa_unificacion[desc] = desc
+                descripciones_representativas.append(desc)
+        
+        # Mapeo: descripción representativa -> código asignado
+        mapa_codigos = {}
+        codigo_actual = proximo_codigo
+        
+        # Asignar códigos a las descripciones representativas
+        for desc_rep in descripciones_representativas:
+            mapa_codigos[desc_rep] = str(codigo_actual)
+            print(f"[CODIGO {codigo_actual}] {desc_rep}")
+            codigo_actual += 1
+        
+        # Segunda pasada: reasignar códigos normalizados
+        codificaciones_normalizadas = []
+        for cod in codificaciones:
+            if (cod.decision in ["nuevo", "mixto"]) and cod.descripciones_nuevas:
+                # Normalizar CADA código de la lista
+                codigos_normalizados = []
+                descripciones_normalizadas = []
+                
+                for desc in cod.descripciones_nuevas:
+                    # 1. Unificar con descripción representativa
+                    desc_unificada = mapa_unificacion.get(desc, desc)
+                    
+                    # 2. Obtener código de la descripción unificada
+                    codigo_correcto = mapa_codigos[desc_unificada]
+                    
+                    # Evitar duplicados en la misma respuesta
+                    if codigo_correcto not in codigos_normalizados:
+                        codigos_normalizados.append(codigo_correcto)
+                        descripciones_normalizadas.append(desc_unificada)
+                
+                # Solo crear codificación si quedaron códigos después de deduplicar
+                if codigos_normalizados:
+                    # Crear nueva codificación con códigos normalizados
+                    cod_nuevo = ResultadoCodificacion(
+                        respuesta_id=cod.respuesta_id,
+                        decision=cod.decision,
+                        codigos_historicos=cod.codigos_historicos,
+                        codigo_nuevo=codigos_normalizados[0] if codigos_normalizados else None,  # Compatibilidad
+                        descripcion_nueva=descripciones_normalizadas[0] if descripciones_normalizadas else None,  # Compatibilidad
+                        idea_principal=cod.idea_principal,
+                        confianza=cod.confianza,
+                        justificacion=cod.justificacion,
+                        codigos_nuevos=codigos_normalizados,  # Lista normalizada y deduplicada
+                        descripciones_nuevas=descripciones_normalizadas  # Descripciones unificadas
+                    )
+                    codificaciones_normalizadas.append(cod_nuevo)
+                else:
+                    # Si no quedaron códigos nuevos, convertir a "asignar" o "rechazar"
+                    if cod.codigos_historicos:
+                        cod_nuevo = ResultadoCodificacion(
+                            respuesta_id=cod.respuesta_id,
+                            decision="asignar",
+                            codigos_historicos=cod.codigos_historicos,
+                            codigo_nuevo=None,
+                            descripcion_nueva=None,
+                            idea_principal=cod.idea_principal,
+                            confianza=cod.confianza,
+                            justificacion=cod.justificacion + " (códigos nuevos unificados)",
+                            codigos_nuevos=[],
+                            descripciones_nuevas=[]
+                        )
+                        codificaciones_normalizadas.append(cod_nuevo)
+            else:
+                # Mantener sin cambios (asignar, rechazar, etc.)
+                codificaciones_normalizadas.append(cod)
+        
+        print(f"{'='*70}")
+        print(f"[NORMALIZACION] Total códigos únicos generados: {len(mapa_codigos)}")
+        print(f"[NORMALIZACION] Descripciones unificadas: {len(descripciones_originales) - len(descripciones_representativas)}")
+        print(f"{'='*70}\n")
+        return codificaciones_normalizadas
     
     def _filtrar_columnas_exportar(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -441,7 +672,7 @@ class CodificadorHibridoV05:
             # Columnas de resultados por pregunta
             columnas_resultados = []
             for _, pregunta in self.mapeo_columnas.items():
-                for sufijo in ['_decision', '_codigo_historico', '_codigo_nuevo', '_descripcion_nueva', '_confianza', '_justificacion']:
+                for sufijo in ['_decision', '_codigo', '_descripcion_nueva', '_confianza', '_justificacion']:
                     col = f"{pregunta}{sufijo}"
                     if col in df.columns:
                         columnas_resultados.append(col)
