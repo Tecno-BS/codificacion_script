@@ -34,7 +34,8 @@ class GptHibridoMock:
         pregunta: str,
         respuestas: List[RespuestaInput], 
         catalogo: Catalogo,
-        contexto: Optional[ContextoProyecto] = None
+        contexto: Optional[ContextoProyecto] = None,
+        normalizar: bool = True
     ) -> List[ResultadoCodificacion]:
         """
         Simula codificacion inteligente sin llamar a GPT
@@ -72,6 +73,10 @@ class GptHibridoMock:
         self.costo_total += costo_simulado
         
         print(f"[MOCK] Codificacion simulada completada. Costo simulado: ${costo_simulado:.4f}")
+        
+        # Normalizar códigos nuevos SOLO si se solicita
+        if normalizar:
+            resultados = self._normalizar_codigos_nuevos(resultados, catalogo)
         
         return resultados
     
@@ -230,4 +235,69 @@ class GptHibridoMock:
             confianza=confianza,
             justificacion=f"[MOCK] Codigo nuevo generado - {justificacion_razon}"
         )
+    
+    def _normalizar_codigos_nuevos(
+        self, 
+        resultados: List[ResultadoCodificacion],
+        catalogo: Catalogo
+    ) -> List[ResultadoCodificacion]:
+        """
+        Normaliza códigos nuevos para evitar duplicaciones
+        - Agrupa descripciones similares bajo el mismo código
+        - Asigna números secuenciales únicos
+        """
+        # Calcular próximo código disponible
+        codigos_numericos = []
+        for cod in catalogo.codigos:
+            try:
+                codigos_numericos.append(int(cod['codigo']))
+            except (ValueError, TypeError):
+                pass
+        proximo_codigo = max(codigos_numericos) + 1 if codigos_numericos else 1
+        
+        # Mapeo: descripción normalizada -> código asignado
+        mapa_codigos = {}
+        codigo_actual = proximo_codigo
+        
+        # Primera pasada: asignar códigos únicos a cada descripción única
+        for resultado in resultados:
+            if resultado.decision == "nuevo" and resultado.descripcion_nueva:
+                # Normalizar descripción (lowercase, sin espacios extras)
+                desc_norm = resultado.descripcion_nueva.lower().strip()
+                
+                # Si ya existe esta descripción, reutilizar el código
+                if desc_norm not in mapa_codigos:
+                    mapa_codigos[desc_norm] = str(codigo_actual)
+                    codigo_actual += 1
+        
+        # Segunda pasada: actualizar resultados con códigos normalizados
+        resultados_normalizados = []
+        for resultado in resultados:
+            if resultado.decision == "nuevo" and resultado.descripcion_nueva:
+                desc_norm = resultado.descripcion_nueva.lower().strip()
+                codigo_correcto = mapa_codigos[desc_norm]
+                
+                # Crear nuevo resultado con código corregido
+                resultado_nuevo = ResultadoCodificacion(
+                    respuesta_id=resultado.respuesta_id,
+                    decision=resultado.decision,
+                    codigos_historicos=resultado.codigos_historicos,
+                    codigo_nuevo=codigo_correcto,
+                    descripcion_nueva=resultado.descripcion_nueva,
+                    idea_principal=resultado.idea_principal,
+                    confianza=resultado.confianza,
+                    justificacion=resultado.justificacion
+                )
+                resultados_normalizados.append(resultado_nuevo)
+            else:
+                # Mantener resultado sin cambios
+                resultados_normalizados.append(resultado)
+        
+        # Log de normalización
+        if mapa_codigos:
+            print(f"[MOCK NORMALIZACION] {len(mapa_codigos)} codigo(s) nuevo(s) unico(s) asignado(s)")
+            for desc, codigo in mapa_codigos.items():
+                print(f"  [{codigo}] {desc}")
+        
+        return resultados_normalizados
 
