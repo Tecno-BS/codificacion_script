@@ -1,217 +1,242 @@
-# 🧠 Sistema de Codificación Semántica Inteligente v2.1
+# 🚀 Sistema de Codificación Automatizada v0.6
 
-Un sistema híbrido que combina **embeddings semánticos** con **GPT** para codificación automática y precisa de respuestas abiertas de encuestas.
+Sistema de codificación automatizada de respuestas abiertas usando GPT, con arquitectura separada entre backend (FastAPI) y frontend (Streamlit).
 
-## 🎯 **Problema que resuelve**
+## 📋 Tabla de Contenidos
 
-- ❌ **Sobreuso del código "Vacío/Irrelevante"** (código 93)
-- ❌ **Baja precisión** en la asignación de códigos
-- ❌ **Inconsistencia** entre respuestas similares
-- ❌ **Problemas de encoding** (tildes como `?`)
-- ❌ **Falta de multicodificación** controlada
-- ❌ **Códigos nuevos** no identificados
+- [Arquitectura](#-arquitectura)
+- [Requisitos](#-requisitos)
+- [Instalación](#-instalación)
+- [Desarrollo](#-desarrollo)
+- [Testing](#-testing)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
 
-## ✨ **Solución implementada (v2.1)**
+---
 
-### **Arquitectura híbrida mejorada:**
-1. ✅ **Corrección de encoding** automática de tildes
-2. ✅ **Embeddings semánticos** con DistilBERT multilingüe
-3. ✅ **Similitud coseno** con umbral ajustable (0.85)
-4. ✅ **GPT asistido** con prompts optimizados
-5. ✅ **Mock inteligente** para desarrollo sin costos
-6. ✅ **Exportación consolidada** de códigos nuevos
+## 🏗️ Arquitectura
 
-### **Flujo de trabajo optimizado:**
 ```
-Respuesta → Fix Encoding → Limpieza (preserva tildes) → Embedding → Similitud coseno
-  ├─ Si similitud ≥ 0.95: Asignar múltiples códigos (multicodificación)
-  ├─ Si similitud ≥ 0.85: Asignar un código del catálogo
-  └─ Si similitud < 0.85: Enviar a GPT
-      ├─ Asignar del catálogo (si GPT encuentra match)
-      ├─ Proponer nuevo código (si no hay match)
-      └─ Rechazar (si es irrelevante)
+┌─────────────────────┐      HTTP/REST     ┌─────────────────────┐
+│   FRONTEND          │ ◄─────────────────► │   BACKEND (API)     │
+│   (Streamlit)       │      JSON          │   (FastAPI)         │
+│                     │                     │                     │
+│  • Interfaz web     │                     │  • Endpoints REST   │
+│  • Visualizaciones  │                     │  • Lógica negocio   │
+│  • Carga archivos   │                     │  • GPT integration  │
+│                     │                     │  • Procesamiento    │
+└─────────────────────┘                     └─────────────────────┘
 ```
 
-## 📊 **Mejoras alcanzadas (v2.1)**
+**Ventajas:**
+- ✅ Frontend y backend desacoplados
+- ✅ Múltiples clientes posibles (web, CLI, mobile)
+- ✅ Escalabilidad independiente
+- ✅ Testing más fácil
+- ✅ API documentada automáticamente (Swagger)
 
-| Métrica | Antes | v2.0 | v2.1 | Mejora |
-|---------|-------|------|------|--------|
-| **Precisión** | ~60% | ~75% | **85-90%** | +40% |
-| **Código genérico** | 82.6% | 40% | **<30%** | -64% |
-| **Multicodificación** | 8.74% | 15% | **25-35%** | +180% |
-| **Consistencia** | Baja | Media | **Alta** | ✅ |
-| **Encoding tildes** | ❌ | ❌ | **✅** | ✅ |
-| **Códigos nuevos** | ❌ | Parcial | **✅** | ✅ |
+---
 
-## 🛠️ **Tecnologías utilizadas**
+## 🔧 Requisitos
 
-- **Python 3.12+**
-- **transformers** (Hugging Face)
-- **PyTorch** (Facebook/Meta)
-- **pandas** (análisis de datos)
-- **scikit-learn** (machine learning)
-- **OpenAI API** (GPT asistido)
+- **Python:** 3.11 o superior
+- **UV:** Gestor de paquetes y entornos virtuales
+- **OpenAI API Key:** (opcional, puede usar modo MOCK)
 
-## 📁 **Estructura del proyecto**
+---
+
+## 📦 Instalación
+
+### 1. Instalar UV (solo primera vez)
+
+**Windows:**
+```powershell
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+**Linux/macOS:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Reinicia la terminal y verifica:
+```bash
+uv --version
+```
+
+### 2. Instalar Dependencias
+
+```bash
+# Desde la raíz del proyecto
+uv sync
+```
+
+### 3. Configurar .env
+
+```bash
+# Backend
+copy backend\.env.backend.example backend\.env.backend
+
+# Frontend
+copy frontend\.env.frontend.example frontend\.env.frontend
+```
+
+**Para empezar en modo MOCK (sin consumir API):**
+```bash
+# backend\.env.backend
+USE_GPT_MOCK=true
+OPENAI_API_KEY=sk-test
+```
+
+---
+
+## 🚀 Uso
+
+### Ejecutar Backend
+
+```bash
+cd backend
+uv run uvicorn cod_backend.main:app --reload --port 8000
+```
+
+Disponible en:
+- **API:** http://localhost:8000
+- **Docs:** http://localhost:8000/docs 📚
+- **Health:** http://localhost:8000/health
+
+### Ejecutar Frontend (cuando esté listo)
+
+```bash
+cd frontend
+uv run streamlit run src/cod_frontend/app.py
+```
+
+### Ejecutar Tests
+
+```bash
+uv run pytest backend/tests/ -v
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Tests
+uv run pytest backend/tests/ -v
+
+# Con coverage
+uv run pytest backend/tests/ --cov=cod_backend
+
+# Health check manual
+curl http://localhost:8000/health
+```
+
+---
+
+## 📁 Estructura del Proyecto
 
 ```
 cod-script/
-├── data/                    # Archivos de entrada
-│   ├── raw/                 # Datos originales
-│   └── processed/           # Datos procesados
-├── src/                  # Scripts principales
-│   ├── embeddings.py        # Generación de embeddings
-│   ├── codificador.py       # Lógica de codificación
-│   ├── evaluador.py         # Métricas y validación
-│   └── utils.py             # Utilidades
-├── result/              # Archivos generados
-│   ├── codificaciones/      # Códigos asignados
-│   ├── metricas/            # Reportes de mejora
-│   └── modelos/             # Modelos entrenados
-├── tests/                   # Pruebas unitarias
-├── requirements.txt         # Dependencias
-├── .gitignore              # Archivos a ignorar
-└── README.md               # Este archivo
+├── pyproject.toml                 # Configuración raíz del workspace
+├── uv.lock                        # Lock file de dependencias
+├── .python-version                # Versión de Python (3.12)
+│
+├── backend/                       # 🔧 Backend API (FastAPI)
+│   ├── pyproject.toml            # Dependencias del backend
+│   ├── .env.backend              # Variables de entorno (no en git)
+│   ├── .env.backend.example      # Ejemplo de configuración
+│   ├── src/
+│   │   └── cod_backend/
+│   │       ├── __init__.py
+│   │       ├── main.py           # Aplicación FastAPI
+│   │       ├── config.py         # Configuración
+│   │       ├── api/              # Endpoints REST
+│   │       │   ├── __init__.py
+│   │       │   └── routes/
+│   │       │       └── __init__.py
+│   │       ├── core/             # Lógica de negocio
+│   │       │   └── __init__.py
+│   │       └── schemas/          # Modelos Pydantic
+│   │           └── __init__.py
+│   └── tests/
+│       ├── __init__.py
+│       └── test_api.py           # Tests de la API
+│
+├── frontend/                      # 🎨 Frontend Web (Streamlit)
+│   ├── pyproject.toml            # Dependencias del frontend
+│   ├── .env.frontend             # Variables de entorno (no en git)
+│   ├── .env.frontend.example     # Ejemplo de configuración
+│   ├── src/
+│   │   └── cod_frontend/
+│   │       └── __init__.py
+│   └── tests/
+│       └── __init__.py
+│
+├── src/                           # 📦 Código legacy (temporal)
+│   └── ... (código actual a migrar)
+│
+├── web/                           # 📦 UI legacy (temporal)
+│   └── ... (código actual a migrar)
+│
+├── data/                          # 📊 Datos de entrada
+├── result/                        # 📈 Resultados y reportes
+└── README.md                      # Este archivo
 ```
 
-## 🚀 **Instalación y configuración**
+---
 
-### **1. Clonar el repositorio**
+## 🔄 Migración desde v0.5
+
+Este proyecto está en proceso de migración de una arquitectura monolítica (v0.5) a una arquitectura separada (v0.6).
+
+**Estado actual:**
+- ✅ **FASE 1 COMPLETADA:** Estructura de carpetas y FastAPI básico
+- ⏳ **FASE 2 EN PROGRESO:** Migrar lógica de negocio a backend API
+- ⏳ **FASE 3 PENDIENTE:** Refactorizar frontend para consumir API
+- ⏳ **FASE 4 PENDIENTE:** Testing completo
+
+**Código legacy:**
+- `src/` - Lógica de negocio actual (a migrar a `backend/src/cod_backend/core/`)
+- `web/` - UI Streamlit actual (a migrar a `frontend/src/cod_frontend/`)
+
+---
+
+## 📚 Comandos Útiles
+
 ```bash
-git clone https://github.com/tu-usuario/cod-script.git
-cd cod-script
+# Gestión de dependencias
+uv sync                          # Instalar/actualizar todo
+cd backend && uv add <paquete>   # Agregar al backend
+cd frontend && uv add <paquete>  # Agregar al frontend
+uv pip list                      # Ver instalados
+
+# Calidad de código
+uv run black backend frontend           # Formatear
+uv run ruff check backend frontend      # Linter
 ```
 
-### **2. Crear entorno virtual**
-```bash
-python -m venv codificacion_env
-```
+---
 
-### **3. Activar entorno virtual**
-```bash
-# Windows (PowerShell)
-.\codificacion_env\Scripts\Activate.ps1
+## 📖 Documentación API
 
-# Windows (CMD)
-codificacion_env\Scripts\activate.bat
+Una vez iniciado el backend, la documentación interactiva está disponible en:
 
-# Linux/Mac
-source codificacion_env/bin/activate
-```
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
 
-### **4. Instalar dependencias**
-```bash
-pip install -r requirements.txt
-```
+---
 
-### **5. Configurar API de OpenAI (opcional)**
-```bash
-# Windows PowerShell
-$env:OPENAI_API_KEY="sk-tu-api-key-aqui"
-$env:USE_GPT_MOCK="false"
-
-# Linux/Mac
-export OPENAI_API_KEY="sk-tu-api-key-aqui"
-export USE_GPT_MOCK="false"
-```
-
-> 💡 **Nota:** Por defecto, el sistema usa **modo MOCK** (sin costos). Para usar GPT real, configura la API key y cambia `USE_GPT_MOCK=false`
-
-## 📋 **Uso del sistema**
-
-### **Opción 1: Interfaz Web (Recomendado)** 🌐
+## 🐛 Solución de Problemas
 
 ```bash
-# Activar entorno virtual
-.\codificacion_env\Scripts\Activate.ps1
+# Backend no inicia
+uv sync                           # Reinstalar dependencias
+ls backend\.env.backend           # Verificar que existe .env
 
-# Lanzar aplicación web
-streamlit run web/app.py
+# Tests fallan
+curl http://localhost:8000/health # Verificar backend corriendo
+
+# Puerto ocupado
+netstat -ano | findstr :8000      # Ver qué proceso usa el puerto
+taskkill /PID <PID> /F            # Matar proceso
 ```
-
-Luego abre tu navegador en: http://localhost:8501
-
-### **Opción 2: Línea de Comandos (CLI)** 💻
-
-#### **Codificación básica:**
-```bash
-python -m src.main --respuestas data/respuestas.xlsx --codigos data/codigos_anteriores.xlsx
-```
-
-#### **Con evaluación de resultados:**
-```bash
-python -m src.main --respuestas data/respuestas.xlsx --codigos data/codigos_anteriores.xlsx --evaluar
-```
-
-#### **Preguntas específicas:**
-```bash
-python -m src.main --respuestas data/respuestas.xlsx --codigos data/codigos.xlsx --preguntas-especificas P1A P2A P5AC
-```
-
-#### **Ajustar umbrales:**
-```bash
-python -m src.main --respuestas data/respuestas.xlsx --codigos data/codigos.xlsx --umbral 0.90 --top-candidatos 10
-```
-
-### **Archivos generados:**
-
-| Archivo | Ubicación | Descripción |
-|---------|-----------|-------------|
-| 📊 **Resultados** | `result/codificaciones/resultados_TIMESTAMP.xlsx` | Excel con códigos asignados |
-| 📦 **Códigos nuevos** | `result/modelos/catalogo_nuevos_consolidado.xlsx` | Propuestas de códigos nuevos |
-| 📈 **Métricas** | `result/metricas/reporte_evaluacion_multi.txt` | Reporte de evaluación |
-| 📉 **Gráficos** | `result/metricas/distribucion_codigos_multi.png` | Visualización |
-| 💾 **Cache GPT** | `result/modelos/gpt_cache.json` | Cache de respuestas GPT |
-
-## 📈 **Métricas y reportes**
-
-El sistema genera automáticamente:
-- **Reporte de precisión** vs sistema anterior
-- **Análisis de códigos** más/menos utilizados
-- **Gráficos de distribución** de códigos
-- **Métricas de similitud** semántica
-- **Recomendaciones** de mejora
-
-## 🔧 **Configuración avanzada**
-
-### **Parámetros ajustables en `config.py`:**
-
-#### **Similitud y codificación:**
-```python
-UMBRAL_SIMILITUD = 0.85        # Umbral para asignar código (v2.1: 0.85, antes: 0.75)
-UMBRAL_MULTICODIGO = 0.95      # Umbral para multicodificación
-TOP_CANDIDATOS = 8             # Candidatos enviados a GPT (v2.1: 8, antes: 5)
-MAX_CODIGOS = 3                # Máximo códigos por respuesta
-```
-
-#### **Modelo y GPT:**
-```python
-EMBEDDING_MODEL = "distilbert-base-multilingual-cased"  # Modelo de embeddings
-OPENAI_MODEL = "gpt-4o-mini"   # Modelo GPT (gpt-4o-mini o gpt-4o)
-GPT_TEMPERATURE = 0.1          # Temperatura (0.0-1.0, menor = más determinista)
-GPT_MAX_TOKENS = 350           # Máximo tokens por respuesta
-GPT_BATCH_SIZE = 20            # Tamaño de lote para procesamiento
-```
-
-#### **Encoding y limpieza:**
-```python
-# utils.py - función clean_text()
-preserve_accents = True        # Preservar tildes (NUEVO en v2.1)
-```
-
-#### **Cache y presupuesto:**
-```python
-GPT_CACHE_ENABLED = True       # Habilitar cache de GPT
-PRESUPUESTO_USD_MAX = 10.0     # Presupuesto máximo en USD
-```
-
-### **🆕 Novedades v2.1:**
-
-✅ **Corrección automática de encoding** - Las tildes mal codificadas (`?`) se corrigen automáticamente  
-✅ **Preservación de tildes** - Ahora se mantienen `á, é, í, ó, ú, ñ, ü` para mejor análisis semántico  
-✅ **Umbrales optimizados** - Umbral aumentado de 0.75 a 0.85 para mayor precisión  
-✅ **Prompts mejorados** - Instrucciones más específicas para GPT  
-✅ **Mock inteligente** - Simulación realista con análisis semántico combinado  
-✅ **Exportación consolidada** - Catálogo de códigos nuevos con frecuencias y aprobación
-
-

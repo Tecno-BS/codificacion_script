@@ -1,0 +1,15 @@
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Archivos temporales de notebooks
+*.pyc
+__pycache__/
+
+# Outputs de notebooks (no trackear si son muy grandes)
+# Descomenta si generas archivos pesados:
+# *.png
+# *.xlsx
+# *.csv
+
+
