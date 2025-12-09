@@ -6,7 +6,7 @@ requires-python = ">=3.11"
 readme = "README.md"
 
 [tool.uv.workspace]
-members = ["backend", "frontend"]
+members = ["backend"]
 
 [dependency-groups]
 dev = [

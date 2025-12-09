@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from .api.routes import codificacion
+from .api.routes import codificacion, progress
 from .schemas.api_schemas import HealthResponse
 from . import config
 
@@ -20,11 +20,13 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configurar CORS (permitir acceso desde frontend Streamlit)
+# Configurar CORS (permitir acceso desde frontend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8501",  # Streamlit local
+        "http://localhost:3000",  # Next.js local
+        "http://127.0.0.1:3000",
+        "http://localhost:8501",  # Streamlit local (legacy)
         "http://127.0.0.1:8501",
     ],
     allow_credentials=True,
@@ -37,6 +39,20 @@ app.add_middleware(
 
 # Incluir rutas de codificación
 app.include_router(codificacion.router, prefix="/api/v1", tags=["codificacion"])
+
+# Incluir rutas de progreso
+app.include_router(progress.router, prefix="/api/v1", tags=["progreso"])
+
+
+# ========== EVENTOS DE INICIO ==========
+
+@app.on_event("startup")
+async def startup_event():
+    """Ejecuta tareas al iniciar el servidor"""
+    # 🆕 MEJORA 2: Limpieza automática de archivos temporales al inicio
+    print("🧹 Ejecutando limpieza automática de archivos temporales...")
+    codificacion.limpiar_archivos_temporales(horas_antiguedad=24)
+    print("✅ Servidor iniciado correctamente")
 
 
 # ========== ENDPOINTS BASE ==========

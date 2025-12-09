@@ -1,8 +1,7 @@
 """
 Core Business Logic
-(Lógica de negocio migrada desde src/)
+(Lógica de negocio del sistema de codificación)
 """
-from .gpt_hibrido import GptHibrido
-from .codificador import CodificadorHibridoV05
+from .codificador_nuevo import CodificadorNuevo
 
-__all__ = ["GptHibrido", "CodificadorHibridoV05"]
+__all__ = ["CodificadorNuevo"]

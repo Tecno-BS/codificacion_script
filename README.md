@@ -1,6 +1,6 @@
-# 🚀 Sistema de Codificación Automatizada v0.6
+# 🚀 Sistema de Codificación Automatizada v1.0
 
-Sistema de codificación automatizada de respuestas abiertas usando GPT, con arquitectura separada entre backend (FastAPI) y frontend (Streamlit).
+Sistema de codificación automatizada de respuestas abiertas usando GPT, con arquitectura moderna separada entre backend (FastAPI) y frontend (Next.js + React).
 
 ## 📋 Tabla de Contenidos
 
@@ -18,21 +18,23 @@ Sistema de codificación automatizada de respuestas abiertas usando GPT, con arq
 ```
 ┌─────────────────────┐      HTTP/REST     ┌─────────────────────┐
 │   FRONTEND          │ ◄─────────────────► │   BACKEND (API)     │
-│   (Streamlit)       │      JSON          │   (FastAPI)         │
+│   (Next.js/React)   │      JSON          │   (FastAPI)         │
 │                     │                     │                     │
-│  • Interfaz web     │                     │  • Endpoints REST   │
-│  • Visualizaciones  │                     │  • Lógica negocio   │
-│  • Carga archivos   │                     │  • GPT integration  │
-│                     │                     │  • Procesamiento    │
+│  • UI moderna       │                     │  • Endpoints REST   │
+│  • TypeScript       │                     │  • Lógica negocio   │
+│  • Modo oscuro      │                     │  • GPT integration  │
+│  • Upload directo   │                     │  • Procesamiento    │
 └─────────────────────┘                     └─────────────────────┘
 ```
 
 **Ventajas:**
 - ✅ Frontend y backend desacoplados
-- ✅ Múltiples clientes posibles (web, CLI, mobile)
+- ✅ UI profesional y moderna con Next.js
+- ✅ TypeScript para type-safety
 - ✅ Escalabilidad independiente
 - ✅ Testing más fácil
 - ✅ API documentada automáticamente (Swagger)
+- ✅ Deploy simplificado (Vercel, Docker, etc.)
 
 ---
 
@@ -72,19 +74,21 @@ uv sync
 
 ### 3. Configurar .env
 
+**Backend:**
 ```bash
-# Backend
-copy backend\.env.backend.example backend\.env.backend
-
-# Frontend
-copy frontend\.env.frontend.example frontend\.env.frontend
+# backend/.env.backend
+USE_GPT_MOCK=true
+OPENAI_API_KEY=sk-test-mock-key
+OPENAI_MODEL=gpt-4o-mini
+BACKEND_PORT=8000
 ```
 
-**Para empezar en modo MOCK (sin consumir API):**
+**Frontend:**
 ```bash
-# backend\.env.backend
-USE_GPT_MOCK=true
-OPENAI_API_KEY=sk-test
+# cod-frontend/.env.local
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+NEXT_PUBLIC_APP_NAME=QCoder
+NEXT_PUBLIC_APP_VERSION=1.0.0
 ```
 
 ---
@@ -103,12 +107,17 @@ Disponible en:
 - **Docs:** http://localhost:8000/docs 📚
 - **Health:** http://localhost:8000/health
 
-### Ejecutar Frontend (cuando esté listo)
+### Ejecutar Frontend (Next.js)
 
 ```bash
-cd frontend
-uv run streamlit run src/cod_frontend/app.py
+cd cod-frontend
+npm install  # Solo primera vez
+npm run dev
 ```
+
+Disponible en: **http://localhost:3000** 🎨
+
+> **Nota:** El frontend antiguo (Streamlit en `frontend/`) está deprecado. Usa el nuevo frontend en `cod-frontend/`.
 
 ### Ejecutar Tests
 

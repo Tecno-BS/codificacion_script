@@ -20,6 +20,7 @@ class CodificacionResponse(BaseModel):
     costo_total: float
     ruta_resultados: Optional[str] = None
     ruta_codigos_nuevos: Optional[str] = None
+    proceso_id: Optional[str] = None  # ID para seguimiento de progreso en tiempo real
 
 
 class HealthResponse(BaseModel):
