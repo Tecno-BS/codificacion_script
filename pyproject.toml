@@ -1,0 +1,33 @@
+[project]
+name = "codificacion-automatizada"
+version = "0.8.0"
+description = "Sistema de Codificación Automatizada con GPT"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.uv.workspace]
+members = ["backend"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=24.0.0",
+    "ruff>=0.1.0",
+    "langchain>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "langchain-core>=0.1.0",
+    "langgraph>=0.0.20",
+    "jupyter>=1.0.0",
+    "ipython>=8.12.0",
+    "matplotlib>=3.7.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
