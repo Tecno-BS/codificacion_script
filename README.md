@@ -261,6 +261,7 @@ Para desplegar el proyecto en un servidor Windows Server, consulta las siguiente
   - Instrucciones detalladas para cada configuración
   - Ideal para entender cada paso del proceso
 
+
 - **⚡ Despliegue con Scripts**: [`DEPLOYMENT_WINDOWS_SERVER.md`](DEPLOYMENT_WINDOWS_SERVER.md)
   - Scripts automatizados de PowerShell
   - Más rápido pero requiere ejecutar scripts
