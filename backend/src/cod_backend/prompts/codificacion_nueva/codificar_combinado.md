@@ -79,20 +79,52 @@ Para cada respuesta **válida**, analiza si necesitas crear códigos nuevos.
    - Son temas REALMENTE distintos e independientes
    - Ejemplo: "Saludable" vs "Apto para diabetes" vs "Sin calorías" → Diferentes códigos
 
-5. **MARCAS Y NOMBRES PROPIOS:**
-   - Si una respuesta es solo una marca o nombre propio (ej: "Coca-Cola", "Pepsi")
-   - Crea un código con `descripcion` exactamente igual al nombre
-   - Si la misma marca aparece en varias respuestas, usa el MISMO código
+5. **MARCAS Y NOMBRES PROPIOS (REGLA CRÍTICA):**
+   - **SOLO crea códigos para marcas/nombres que REALMENTE aparecen en las respuestas del batch**
+   - **NO inventes marcas o nombres que no están en las respuestas**
+   - Si una respuesta es **solo** una marca o nombre propio (ej: "Coca-Cola", "Pepsi", "Juan Pérez"):
+     - Crea un código con `descripcion` **exactamente igual** al nombre tal como aparece en la respuesta
+     - **NO agregues prefijos** como "Marca:", "Nombre:", "Mención de...", etc.
+     - El `texto_original` debe ser la respuesta completa (el nombre tal cual)
+   - **NORMALIZACIÓN DE VARIACIONES:**
+     - Si encuentras variaciones del mismo nombre (ej: "Coca Cola", "Coca-Cola", "coca cola"):
+       - **USA EL MISMO CÓDIGO** para todas las variaciones
+       - Usa la versión **más común** o **más completa** como `descripcion`
+       - Ejemplo: Si aparece "Coca Cola" y "Coca-Cola" → un solo código con descripción "Coca-Cola"
+   - **VERIFICACIÓN ANTES DE CREAR:**
+     - **ANTES de crear un código para una marca/nombre, verifica:**
+       1. ¿Ya existe en el catálogo histórico? → NO crear nuevo
+       2. ¿Ya existe en los códigos creados en batches anteriores? → NO crear nuevo, REUTILIZAR
+       3. ¿Ya creaste un código para esta marca/nombre en ESTE batch? → NO crear nuevo, REUTILIZAR
+   - **PRECISIÓN EN LA DESCRIPCIÓN:**
+     - Para marcas: usa el nombre exacto de la marca (ej: "Nike", "Adidas", "Samsung")
+     - Para nombres propios: usa el nombre completo tal como aparece (ej: "Juan Pérez", "María García")
+     - **NO uses descripciones genéricas** como "Marca deportiva", "Persona", etc.
 
-6. **UNICIDAD Y REUTILIZACIÓN:**
+6. **UNICIDAD Y REUTILIZACIÓN (CRÍTICO):**
+   - **ANTES de crear cualquier código nuevo:**
+     1. Revisa TODOS los códigos del catálogo histórico
+     2. Revisa TODOS los códigos ya creados en batches anteriores
+     3. Revisa TODOS los códigos que ya creaste en ESTE batch
+   - Si encuentras un concepto **similar o igual**, **REUTILIZA el código existente**
+   - **NO crees códigos duplicados** para el mismo concepto
    - Cada código = un solo concepto único
-   - Si encuentras el mismo concepto en varias respuestas, REUTILIZA el mismo código
-   - NO crees códigos distintos para variaciones del mismo concepto
+   - Si encuentras el mismo concepto en varias respuestas, **REUTILIZA el mismo código**
+   - **NO crees códigos distintos para variaciones del mismo concepto**
 
 **CÓDIGOS NUEVOS:**
-- Empiezan desde `{codigo_base}`
-- Son secuenciales: `{codigo_base}`, `{codigo_base + 1}`, `{codigo_base + 2}`, etc.
+- Empiezan desde `{{codigo_base}}`
+- Son secuenciales: `{{codigo_base}}`, `{{codigo_base + 1}}`, `{{codigo_base + 2}}`, etc.
 - Cada código tiene: `codigo`, `descripcion`, `texto_original`
+
+**PRECISIÓN EN LA DESCRIPCIÓN (CRÍTICO):**
+- La `descripcion` debe ser **clara, concisa y precisa**
+- **NO uses frases genéricas** como "Bueno", "Útil", "Me gusta", "Calidad"
+- **SÉ ESPECÍFICO**: "Sabor dulce", "Precio accesible", "Textura suave", "Apto para diabetes"
+- Para marcas/nombres: usa el nombre exacto, sin prefijos ni sufijos
+- **NO inventes conceptos** que no están explícitamente en las respuestas
+- **NO uses sinónimos** que cambien el significado (ej: "Saludable" ≠ "Nutritivo" si son conceptos distintos)
+- **Mantén la descripción corta** (máximo 5-6 palabras, idealmente 2-3)
 
 ---
 
@@ -132,7 +164,7 @@ Responde **EXCLUSIVAMENTE** en JSON con este formato:
       "respuesta_cubierta_completamente": false,
       "conceptos_nuevos": [
         {{
-          "codigo": {codigo_base},
+          "codigo": {{codigo_base}},
           "descripcion": "Versatilidad de uso",
           "texto_original": "lo uso en varias cosas"
         }}
@@ -145,5 +177,12 @@ Responde **EXCLUSIVAMENTE** en JSON con este formato:
 **IMPORTANTE:**
 - Responde SOLO con el JSON, sin texto adicional
 - Asegúrate de que todos los `respuesta_id` coincidan entre las 3 secciones
-- Los códigos nuevos deben ser secuenciales empezando desde `{codigo_base}`
+- Los códigos nuevos deben ser secuenciales empezando desde `{{codigo_base}}`
+
+**VERIFICACIÓN FINAL ANTES DE RESPONDER:**
+1. ¿Todos los códigos nuevos que creaste realmente aparecen en las respuestas del batch?
+2. ¿Revisaste el catálogo histórico y los códigos existentes para evitar duplicados?
+3. ¿Las descripciones son precisas y específicas (no genéricas)?
+4. ¿Las marcas/nombres propios están escritos exactamente como aparecen en las respuestas?
+5. ¿No hay códigos duplicados para el mismo concepto en este batch?
 

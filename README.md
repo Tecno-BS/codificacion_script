@@ -249,3 +249,22 @@ curl http://localhost:8000/health # Verificar backend corriendo
 netstat -ano | findstr :8000      # Ver qué proceso usa el puerto
 taskkill /PID <PID> /F            # Matar proceso
 ```
+
+---
+
+## 🚀 Despliegue en Producción
+
+Para desplegar el proyecto en un servidor Windows Server, consulta las siguientes guías:
+
+- **📘 Despliegue Manual (Recomendado)**: [`DEPLOYMENT_MANUAL_WINDOWS_SERVER.md`](DEPLOYMENT_MANUAL_WINDOWS_SERVER.md)
+  - Guía paso a paso sin scripts automatizados
+  - Instrucciones detalladas para cada configuración
+  - Ideal para entender cada paso del proceso
+
+- **⚡ Despliegue con Scripts**: [`DEPLOYMENT_WINDOWS_SERVER.md`](DEPLOYMENT_WINDOWS_SERVER.md)
+  - Scripts automatizados de PowerShell
+  - Más rápido pero requiere ejecutar scripts
+
+- **📋 Guía Rápida**: [`QUICK_START_DEPLOYMENT.md`](QUICK_START_DEPLOYMENT.md)
+  - Resumen de pasos esenciales
+  - Checklist de verificación

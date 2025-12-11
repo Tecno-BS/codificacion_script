@@ -21,14 +21,21 @@ app = FastAPI(
 )
 
 # Configurar CORS (permitir acceso desde frontend)
+# En producción, usar variables de entorno para los orígenes permitidos
+import os
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+if os.getenv("ENVIRONMENT") == "production":
+    # En producción, agregar el dominio real
+    production_domain = os.getenv("PRODUCTION_DOMAIN", "")
+    if production_domain:
+        cors_origins.extend([
+            f"https://{production_domain}",
+            f"http://{production_domain}",
+        ])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Next.js local
-        "http://127.0.0.1:3000",
-        "http://localhost:8501",  # Streamlit local (legacy)
-        "http://127.0.0.1:8501",
-    ],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,11 +79,14 @@ async def root():
 @app.get("/health", response_model=HealthResponse)
 async def health():
     """Health check - Verificar que la API está funcionando"""
+    # Verificar si OpenAI está disponible
+    openai_disponible = config.OPENAI_API_KEY is not None and config.OPENAI_API_KEY != ""
+    
     return HealthResponse(
         status="ok",
         version="0.8.0",
-        modo_mock=config.USE_GPT_MOCK,
-        openai_disponible=config.OPENAI_AVAILABLE
+        modo_mock=False,  # Ya no usamos modo mock
+        openai_disponible=openai_disponible
     )
 
 

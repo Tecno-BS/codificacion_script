@@ -78,6 +78,91 @@ def son_conceptos_similares(desc1: str, desc2: str, umbral_similitud: float = 0.
     return similitud >= umbral_similitud
 
 
+def normalizar_marca_nombre(texto: str) -> str:
+    """
+    Normaliza un nombre de marca o nombre propio para comparación.
+    Preserva mayúsculas iniciales y caracteres especiales importantes.
+    
+    Args:
+        texto: Nombre de marca o nombre propio
+        
+    Returns:
+        Nombre normalizado (sin espacios extra, con mayúsculas iniciales)
+    """
+    if not texto:
+        return ""
+    
+    # Remover espacios al inicio y final
+    texto = texto.strip()
+    
+    # Normalizar espacios múltiples
+    texto = re.sub(r'\s+', ' ', texto)
+    
+    # Capitalizar palabras (preservar mayúsculas en medio de palabras como "McDonald's")
+    palabras = texto.split()
+    palabras_normalizadas = []
+    for palabra in palabras:
+        # Si la palabra tiene mayúsculas en medio (ej: "McDonald's", "iPhone"), preservarla
+        if any(c.isupper() for c in palabra[1:]):
+            palabras_normalizadas.append(palabra)
+        else:
+            # Capitalizar normalmente
+            palabras_normalizadas.append(palabra.capitalize())
+    
+    return " ".join(palabras_normalizadas)
+
+
+def es_marca_o_nombre_propio(texto: str) -> bool:
+    """
+    Detecta si un texto parece ser una marca o nombre propio.
+    
+    Criterios:
+    - Es corto (menos de 50 caracteres)
+    - No contiene verbos comunes
+    - Puede contener mayúsculas en medio
+    - No contiene puntuación de oración (., !, ?) excepto al final
+    
+    Args:
+        texto: Texto a evaluar
+        
+    Returns:
+        True si parece ser una marca o nombre propio
+    """
+    if not texto:
+        return False
+    
+    texto_limpio = texto.strip()
+    
+    # Debe ser relativamente corto
+    if len(texto_limpio) > 50:
+        return False
+    
+    # No debe contener verbos comunes de opinión
+    verbos_comunes = [
+        "me gusta", "me encanta", "prefiero", "opino", "creo", "pienso",
+        "es bueno", "es malo", "tiene", "hace", "puede", "debe"
+    ]
+    texto_lower = texto_limpio.lower()
+    for verbo in verbos_comunes:
+        if verbo in texto_lower:
+            return False
+    
+    # No debe contener puntuación de oración en medio (solo al final)
+    texto_sin_final = texto_limpio[:-1] if texto_limpio and texto_limpio[-1] in ".,!?" else texto_limpio
+    if any(p in texto_sin_final for p in ".,!?"):
+        return False
+    
+    # Si tiene mayúsculas en medio o es todo mayúsculas, probablemente es marca/nombre
+    tiene_mayusculas_medio = any(c.isupper() for c in texto_limpio[1:-1] if texto_limpio)
+    es_todo_mayusculas = texto_limpio.isupper() and len(texto_limpio) > 1
+    
+    # Si es muy corto (1-3 palabras) y no tiene verbos, probablemente es marca/nombre
+    palabras = texto_limpio.split()
+    es_corto = len(palabras) <= 3
+    
+    return (tiene_mayusculas_medio or es_todo_mayusculas or es_corto) and len(palabras) > 0
+
+
 def detectar_codigo_especial(texto: str) -> Optional[int]:
     """
     Detecta si una respuesta contiene un código especial (NS, NC, etc.).

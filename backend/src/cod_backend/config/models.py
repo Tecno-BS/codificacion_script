@@ -27,17 +27,3 @@ def supports_temperature(model: str) -> bool:
     return True
 
 
-def get_default_temperature(model: str) -> float:
-    """
-    Obtiene la temperature por defecto para un modelo.
-    
-    Args:
-        model: Nombre del modelo
-        
-    Returns:
-        Temperature por defecto (0.1 para modelos que lo soportan, 1.0 para otros)
-    """
-    if supports_temperature(model):
-        return 0.1
-    return 1.0
-

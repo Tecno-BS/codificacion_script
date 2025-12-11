@@ -1,7 +1,7 @@
 """
 Nodo del grafo: Preparar batch de respuestas.
 """
-from ...graph.state import EstadoCodificacion
+from ..graph.state import EstadoCodificacion
 
 
 def nodo_preparar_batch(state: EstadoCodificacion) -> EstadoCodificacion:

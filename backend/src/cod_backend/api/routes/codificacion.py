@@ -12,7 +12,7 @@ import time
 
 from ...schemas.api_schemas import CodificacionRequest, CodificacionResponse
 from ...core.codificador_nuevo import CodificadorNuevo
-from ...utils import save_data
+from ...utils import save_data, obtener_mensaje_error_descriptivo, formatear_error_para_frontend
 from ... import config
 from .progress import crear_proceso, obtener_proceso, eliminar_proceso
 from typing import Union
@@ -207,9 +207,16 @@ async def ejecutar_codificacion_con_progreso(
         print("❌ ERROR en ejecutar_codificacion_con_progreso:")
         traceback.print_exc()
 
+        # Obtener mensaje de error descriptivo
+        mensaje_error = obtener_mensaje_error_descriptivo(
+            e,
+            contexto="Error durante la codificación"
+        )
+
         controlador = obtener_proceso(proceso_id)
         if controlador:
-            controlador.mensaje = f"❌ Error interno: {str(e)}"
+            controlador.mensaje = f"❌ {mensaje_error}"
+            controlador.error = mensaje_error  # Guardar error para que el frontend lo reciba
             controlador.cancelar()
         
         # Limpiar archivos temporales
@@ -295,7 +302,11 @@ async def codificar_respuestas_upload(
         )
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en codificación: {str(e)}")
+        mensaje_error = obtener_mensaje_error_descriptivo(
+            e,
+            contexto="Error al iniciar la codificación"
+        )
+        raise HTTPException(status_code=500, detail=mensaje_error)
 
 
 @router.post("/extraer-datos-auxiliares")
@@ -365,7 +376,11 @@ async def extraer_datos_auxiliares(
     except Exception as e:
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Error al extraer datos auxiliares: {str(e)}")
+        mensaje_error = obtener_mensaje_error_descriptivo(
+            e,
+            contexto="Error al extraer datos auxiliares"
+        )
+        raise HTTPException(status_code=500, detail=mensaje_error)
 
 
 @router.post("/codificar-nuevo-upload", response_model=CodificacionResponse)
@@ -457,9 +472,11 @@ async def codificar_respuestas_nuevo_upload(
         )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error en codificación (nuevo): {str(e)}"
+        mensaje_error = obtener_mensaje_error_descriptivo(
+            e,
+            contexto="Error al iniciar la codificación (nuevo sistema)"
         )
+        raise HTTPException(status_code=500, detail=mensaje_error)
 
 
 @router.post("/codificar", response_model=CodificacionResponse)
@@ -499,7 +516,6 @@ async def codificar_respuestas(request: CodificacionRequest):
         # Exportar códigos nuevos (si existen)
         ruta_codigos_nuevos = None
         if hasattr(codificador, 'df_codigos_nuevos') and codificador.df_codigos_nuevos is not None and not codificador.df_codigos_nuevos.empty:
-            from ...utils import save_data
             ruta_codigos_nuevos = f"result/codigos_nuevos/{timestamp}_codigos_nuevos.xlsx"
             Path(ruta_codigos_nuevos).parent.mkdir(parents=True, exist_ok=True)
             save_data(codificador.df_codigos_nuevos, ruta_codigos_nuevos)
@@ -519,7 +535,11 @@ async def codificar_respuestas(request: CodificacionRequest):
         )
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en codificación: {str(e)}")
+        mensaje_error = obtener_mensaje_error_descriptivo(
+            e,
+            contexto="Error durante la codificación"
+        )
+        raise HTTPException(status_code=500, detail=mensaje_error)
 
 
 @router.get("/resultados/{filename}")
@@ -614,5 +634,9 @@ async def ejecutar_limpieza_temporales(horas_antiguedad: int = 24):
             "horas_antiguedad": horas_antiguedad
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en limpieza: {str(e)}")
+        mensaje_error = obtener_mensaje_error_descriptivo(
+            e,
+            contexto="Error durante la limpieza de archivos temporales"
+        )
+        raise HTTPException(status_code=500, detail=mensaje_error)
 

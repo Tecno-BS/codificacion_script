@@ -41,21 +41,3 @@ export interface CodificationStats {
   costo_total: number
 }
 
-export interface ProgresoData {
-  proceso_id: string
-  pausado: boolean
-  cancelado: boolean
-  batch_actual: number
-  total_batches: number
-  respuestas_procesadas: number
-  total_respuestas: number
-  mensaje: string
-  progreso_pct: number
-  timestamp: string
-  completado?: boolean
-  error?: string
-  archivo_resultados?: string | null
-  archivo_codigos_nuevos?: string | null
-  stats?: CodificationStats | null
-}
-

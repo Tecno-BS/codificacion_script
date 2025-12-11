@@ -30,6 +30,7 @@ class ControladorProceso:
         self.archivo_resultados: str | None = None
         self.archivo_codigos_nuevos: str | None = None
         self.stats: dict | None = None
+        self.error: str | None = None  # Mensaje de error si ocurre uno
         
     def actualizar(
         self,
@@ -78,6 +79,7 @@ class ControladorProceso:
             "archivo_resultados": self.archivo_resultados,
             "archivo_codigos_nuevos": self.archivo_codigos_nuevos,
             "stats": self.stats,
+            "error": self.error,  # Incluir error si existe
         }
 
 
@@ -119,6 +121,11 @@ async def stream_progreso(proceso_id: str):
             # Enviar estado actual
             data = controlador.to_dict()
             yield f"data: {json.dumps(data)}\n\n"
+            
+            # Si hay un error, enviarlo y cerrar
+            if controlador.error:
+                yield f"data: {json.dumps({'error': True, 'mensaje_error': controlador.error, **data})}\n\n"
+                break
             
             # Si el proceso está completado (100%), enviar y cerrar
             if controlador.progreso_pct >= 100:

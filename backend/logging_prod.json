@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "default": {
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+      "datefmt": "%Y-%m-%d %H:%M:%S"
+    },
+    "detailed": {
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(pathname)s:%(lineno)d - %(message)s",
+      "datefmt": "%Y-%m-%d %H:%M:%S"
+    }
+  },
+  "handlers": {
+    "file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "INFO",
+      "formatter": "detailed",
+      "filename": "logs/backend.log",
+      "maxBytes": 10485760,
+      "backupCount": 10,
+      "encoding": "utf-8"
+    },
+    "error_file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "ERROR",
+      "formatter": "detailed",
+      "filename": "logs/backend_errors.log",
+      "maxBytes": 10485760,
+      "backupCount": 10,
+      "encoding": "utf-8"
+    },
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "default",
+      "stream": "ext://sys.stdout"
+    }
+  },
+  "loggers": {
+    "uvicorn": {
+      "level": "INFO",
+      "handlers": ["file", "console"],
+      "propagate": false
+    },
+    "uvicorn.error": {
+      "level": "ERROR",
+      "handlers": ["error_file", "console"],
+      "propagate": false
+    },
+    "cod_backend": {
+      "level": "INFO",
+      "handlers": ["file", "error_file"],
+      "propagate": false
+    }
+  },
+  "root": {
+    "level": "INFO",
+    "handlers": ["file", "console"]
+  }
+}
+
