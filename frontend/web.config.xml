@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <rewrite>
+      <rules>
+        <!-- Proxy requests to /api/* to backend -->
+        <rule name="Backend API Proxy" stopProcessing="true">
+          <match url="^api/(.*)" />
+          <action type="Rewrite" url="http://127.0.0.1:8000/{R:1}" />
+          <serverVariables>
+            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
+          </serverVariables>
+        </rule>
+        
+        <!-- Next.js routing -->
+        <rule name="Next.js Routes" stopProcessing="true">
+          <match url=".*" />
+          <conditions logicalGrouping="MatchAll">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="/" />
+        </rule>
+      </rules>
+    </rewrite>
+    
+    <!-- Configuración de compresión -->
+    <httpCompression>
+      <dynamicTypes>
+        <add mimeType="application/json" enabled="true" />
+        <add mimeType="application/javascript" enabled="true" />
+        <add mimeType="text/css" enabled="true" />
+      </dynamicTypes>
+    </httpCompression>
+    
+    <!-- Headers de seguridad -->
+    <httpProtocol>
+      <customHeaders>
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="X-Frame-Options" value="DENY" />
+        <add name="X-XSS-Protection" value="1; mode=block" />
+        <add name="Referrer-Policy" value="strict-origin-when-cross-origin" />
+      </customHeaders>
+    </httpProtocol>
+    
+    <!-- Configuración de errores -->
+    <httpErrors errorMode="DetailedLocalOnly" />
+    
+    <!-- Configuración de caché estática -->
+    <staticContent>
+      <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+    </staticContent>
+  </system.webServer>
+</configuration>

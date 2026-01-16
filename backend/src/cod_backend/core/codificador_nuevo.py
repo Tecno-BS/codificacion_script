@@ -67,12 +67,12 @@ class CodificadorNuevo:
         
         import time
         timestamp_ejecucion = time.time()
-        print(f"🕐 Timestamp de ejecución: {timestamp_ejecucion}")
+        print(f"Timestamp de ejecución: {timestamp_ejecucion}")
 
         # Cargar datos
         df = load_data(ruta_respuestas)
-        print(f"📊 DataFrame cargado: {len(df)} filas, {len(df.columns)} columnas")
-        print(f"📊 Columnas: {list(df.columns)}")
+        print(f"DataFrame cargado: {len(df)} filas, {len(df.columns)} columnas")
+        print(f"Columnas: {list(df.columns)}")
         
         # Determinar estructura según si se usa dato auxiliar
         usar_auxiliar = self.config_auxiliar is not None and self.config_auxiliar.get("usar", False)
@@ -91,11 +91,11 @@ class CodificadorNuevo:
         if usar_auxiliar and df.shape[1] >= 3:
             columna_auxiliar = df.columns[1]
             columna_respuesta = df.columns[2]
-            print(f"📊 Usando dato auxiliar: columna '{columna_auxiliar}'")
+            print(f"Usando dato auxiliar: columna '{columna_auxiliar}'")
         else:
             columna_auxiliar = None
             if usar_auxiliar and df.shape[1] < 3:
-                print(f"⚠️  Dato auxiliar configurado pero el archivo solo tiene {df.shape[1]} columnas. "
+                print(f"Dato auxiliar configurado pero el archivo solo tiene {df.shape[1]} columnas. "
                       f"Continuando sin dato auxiliar (usando solo ID y Respuestas).")
                 # Desactivar uso de dato auxiliar si no está disponible
                 usar_auxiliar = False
@@ -144,8 +144,8 @@ class CodificadorNuevo:
             
             respuestas_reales.append(respuesta_item)
         
-        print(f"📋 Total de filas en el archivo (DataFrame): {len(df)}")
-        print(f"📋 Total de respuestas cargadas: {len(respuestas_reales)}")
+        print(f"Total de filas en el archivo (DataFrame): {len(df)}")
+        print(f"Total de respuestas cargadas: {len(respuestas_reales)}")
 
         # Cargar catálogo histórico
         catalogo_historico, catalogo_por_categoria = self._cargar_catalogo(ruta_codigos)
@@ -153,9 +153,9 @@ class CodificadorNuevo:
         # Calcular código inicial para nuevos códigos
         proximo_codigo_inicial = self._calcular_codigo_inicial(catalogo_historico)
 
-        print(f"\n📊 Respuestas cargadas: {len(respuestas_reales)}")
-        print(f"📚 Catálogo histórico: {len(catalogo_historico)} códigos")
-        print(f"🔢 Código inicial para nuevos códigos: {proximo_codigo_inicial}")
+        print(f"\nRespuestas cargadas: {len(respuestas_reales)}")
+        print(f"Catálogo histórico: {len(catalogo_historico)} códigos")
+        print(f"Código inicial para nuevos códigos: {proximo_codigo_inicial}")
 
         # Calcular batch size óptimo
         batch_size = calcular_batch_size_optimo(
@@ -164,7 +164,7 @@ class CodificadorNuevo:
             modelo=self.modelo
         )
         batches_esperados = (len(respuestas_reales) + batch_size - 1) // batch_size
-        print(f"📦 Batch size optimizado: {batch_size} respuestas por batch ({batches_esperados} batches totales)")
+        print(f"Batch size optimizado: {batch_size} respuestas por batch ({batches_esperados} batches totales)")
 
         # Actualizar config_auxiliar si se desactivó automáticamente
         config_auxiliar_final = self.config_auxiliar
@@ -198,12 +198,12 @@ class CodificadorNuevo:
         workflow = construir_grafo()
         app = workflow.compile()
         
-        print("🚀 Usando nodo combinado (optimizado - 1 llamada GPT por batch)")
+        print("Usando nodo combinado (optimizado - 1 llamada GPT por batch)")
 
         recursion_limit = max(batches_esperados * 10, 100)
         config = RunnableConfig(recursion_limit=recursion_limit)
 
-        print("\n🚀 Ejecutando grafo nuevo...\n")
+        print("\nEjecutando grafo nuevo...\n")
         
         # Ejecutar en hilo separado para no bloquear el event loop
         import asyncio
@@ -268,7 +268,7 @@ class CodificadorNuevo:
                     categoria_actual = categoria_detectada
                     if categoria_actual not in catalogo_por_categoria:
                         catalogo_por_categoria[categoria_actual] = []
-                    print(f"   📂 Categoría detectada: {categoria_actual} (COD={codigo}, TEXTO={desc})")
+                    print(f"Categoría detectada: {categoria_actual} (COD={codigo}, TEXTO={desc})")
                 else:
                     # Inferir por rango de código
                     if codigo == 1000 or (codigo >= 1000 and codigo < 2000):
@@ -279,13 +279,13 @@ class CodificadorNuevo:
                         categoria_actual = "positivas"
                     else:
                         categoria_actual = None
-                        print(f"   ⚠️  No se pudo detectar categoría para COD={codigo}, TEXTO={desc}")
+                        print(f"No se pudo detectar categoría para COD={codigo}, TEXTO={desc}")
                         continue
                     
                     if categoria_actual:
                         if categoria_actual not in catalogo_por_categoria:
                             catalogo_por_categoria[categoria_actual] = []
-                        print(f"   📂 Categoría inferida: {categoria_actual} (COD={codigo}, TEXTO={desc})")
+                        print(f"Categoría inferida: {categoria_actual} (COD={codigo}, TEXTO={desc})")
             else:
                 # Es un código normal
                 codigo_item = {"codigo": codigo, "descripcion": desc}
@@ -296,7 +296,7 @@ class CodificadorNuevo:
         
         # Mostrar resumen de categorías
         if catalogo_por_categoria:
-            print(f"\n   📚 Catálogo agrupado por categorías:")
+            print(f"\n Catálogo agrupado por categorías:")
             for cat, codigos in catalogo_por_categoria.items():
                 print(f"      - {cat}: {len(codigos)} códigos")
         
@@ -309,30 +309,30 @@ class CodificadorNuevo:
         Returns:
             Código inicial para nuevos códigos
         """
-        print(f"\n🔍 Diagnóstico de código inicial:")
-        print(f"   📚 Total códigos en catálogo: {len(catalogo_historico)}")
+        print(f"\nDiagnóstico de código inicial:")
+        print(f"Total códigos en catálogo: {len(catalogo_historico)}")
         
         if not catalogo_historico:
-            print(f"   ✅ No hay catálogo histórico, empezando desde 1")
+            print(f"No hay catálogo histórico, empezando desde 1")
             return 1
         
         todos_codigos = [
             c["codigo"] for c in catalogo_historico if isinstance(c["codigo"], int)
         ]
-        print(f"   📚 Todos los códigos: {sorted(todos_codigos)}")
+        print(f"  Todos los códigos: {sorted(todos_codigos)}")
         
         # Excluir códigos especiales 90-98
         codigos_validos = [c for c in todos_codigos if not (90 <= c <= 98)]
-        print(f"   📚 Códigos válidos (excluyendo 90-98): {sorted(codigos_validos) if codigos_validos else 'NINGUNO'}")
+        print(f"   Códigos válidos (excluyendo 90-98): {sorted(codigos_validos) if codigos_validos else 'NINGUNO'}")
         
         if codigos_validos:
             max_codigo = max(codigos_validos)
             proximo_codigo_inicial = max_codigo + 1
-            print(f"   ✅ Código máximo en catálogo: {max_codigo}")
-            print(f"   ✅ Próximo código inicial: {proximo_codigo_inicial}")
+            print(f"   Código máximo en catálogo: {max_codigo}")
+            print(f"  Próximo código inicial: {proximo_codigo_inicial}")
             return proximo_codigo_inicial
         else:
-            print(f"   ✅ No hay códigos válidos en catálogo, empezando desde 1")
+            print(f"  No hay códigos válidos en catálogo, empezando desde 1")
             return 1
 
     def _ejecutar_stream(
@@ -369,32 +369,32 @@ class CodificadorNuevo:
                             respuestas_procesadas = batch_actual * batch_size
                             if total_respuestas > 0:
                                 progreso = min(respuestas_procesadas / total_respuestas, 0.98)
-                                mensaje = f"📦 Preparando batch {batch_actual + 1}/{total_batches}"
+                                mensaje = f"Preparando batch {batch_actual + 1}/{total_batches}"
                                 progress_callback(progreso, mensaje)
                         
                         elif node_name == "codificar_combinado":
                             respuestas_procesadas = batch_actual * batch_size
                             if total_respuestas > 0:
                                 progreso = min((respuestas_procesadas + batch_size * 0.5) / total_respuestas, 0.98)
-                                mensaje = f"🚀 Codificando batch {batch_actual + 1}/{total_batches}"
+                                mensaje = f" Codificando batch {batch_actual + 1}/{total_batches}"
                                 progress_callback(progreso, mensaje)
                         
                         elif node_name == "ensamblar":
                             respuestas_procesadas = batch_actual * batch_size
                             if total_respuestas > 0:
                                 progreso = min((respuestas_procesadas + batch_size * 0.9) / total_respuestas, 0.98)
-                                mensaje = f"🔧 Ensamblando resultados (batch {batch_actual + 1}/{total_batches})"
+                                mensaje = f" Ensamblando resultados (batch {batch_actual + 1}/{total_batches})"
                                 progress_callback(progreso, mensaje)
                         
                         elif node_name == "finalizar":
                             batch_actual_final = estado_resultado.get("batch_actual", 0)
                             if batch_actual_final >= total_batches:
-                                progress_callback(1.0, "✅ Codificación completada")
+                                progress_callback(1.0, " Codificación completada")
                             else:
                                 respuestas_procesadas = batch_actual_final * batch_size
                                 if total_respuestas > 0:
                                     progreso = min(respuestas_procesadas / total_respuestas, 0.98)
-                                mensaje = f"🔄 Batch {batch_actual_final}/{total_batches} completado, continuando..."
+                                mensaje = f" Batch {batch_actual_final}/{total_batches} completado, continuando..."
                                 progress_callback(progreso, mensaje)
             
             return estado_resultado
@@ -402,7 +402,7 @@ class CodificadorNuevo:
             # Mejorar el mensaje de error con contexto
             import traceback
             error_traceback = traceback.format_exc()
-            print(f"❌ ERROR en _ejecutar_stream:")
+            print(f"Error en _ejecutar_stream:")
             print(error_traceback)
             
             # Crear un mensaje de error más descriptivo
@@ -430,7 +430,7 @@ class CodificadorNuevo:
         for c in estado_final["codificaciones"]:
             dec = c["decision"]
             decisiones[dec] = decisiones.get(dec, 0) + 1
-        print(f"\n📈 Decisiones: {decisiones}")
+        print(f"\nDecisiones: {decisiones}")
 
         # Mapeo fila_excel -> ID
         mapeo_id: Dict[int, Any] = {}

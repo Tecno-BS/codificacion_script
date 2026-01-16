@@ -23,23 +23,56 @@ app = FastAPI(
 # Configurar CORS (permitir acceso desde frontend)
 # En producción, usar variables de entorno para los orígenes permitidos
 import os
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
-if os.getenv("ENVIRONMENT") == "production":
-    # En producción, agregar el dominio real
-    production_domain = os.getenv("PRODUCTION_DOMAIN", "")
-    if production_domain:
-        cors_origins.extend([
-            f"https://{production_domain}",
-            f"http://{production_domain}",
-        ])
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Si PUBLIC_ACCESS está configurado, permitir acceso desde cualquier origen
+public_access = os.getenv("PUBLIC_ACCESS", "false").lower() == "true"
+
+if public_access:
+    # Modo público: permitir acceso desde cualquier origen
+    # Usamos allow_origin_regex con una regex que permite cualquier URL HTTP/HTTPS
+    # También incluimos explícitamente los orígenes comunes por si la regex falla
+    print("MODO PUBLICO ACTIVADO: El servidor acepta conexiones desde cualquier origen")
+    
+    # Obtener la IP del servidor si está disponible
+    server_ip = os.getenv("SERVER_IP", "192.168.2.4")
+    server_domain = os.getenv("SERVER_DOMAIN", "codificacion-automatizada.brandstratx.sas.corp")
+    
+    # Lista de orígenes comunes que siempre permitimos
+    common_origins = [
+        f"http://{server_ip}:3000",
+        f"http://{server_domain}:3000",
+        f"http://localhost:3000",
+        f"http://127.0.0.1:3000",
+    ]
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=common_origins,
+        allow_origin_regex=r"https?://.*",
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+    )
+else:
+    # Modo por defecto: solo localhost
+    cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+    if os.getenv("ENVIRONMENT") == "production":
+        # En producción, agregar el dominio real
+        production_domain = os.getenv("PRODUCTION_DOMAIN", "")
+        if production_domain:
+            cors_origins.extend([
+                f"https://{production_domain}",
+                f"http://{production_domain}",
+            ])
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 # ========== RUTAS ==========
@@ -57,9 +90,9 @@ app.include_router(progress.router, prefix="/api/v1", tags=["progreso"])
 async def startup_event():
     """Ejecuta tareas al iniciar el servidor"""
     # 🆕 MEJORA 2: Limpieza automática de archivos temporales al inicio
-    print("🧹 Ejecutando limpieza automática de archivos temporales...")
+    print("Ejecutando limpieza automática de archivos temporales...")
     codificacion.limpiar_archivos_temporales(horas_antiguedad=24)
-    print("✅ Servidor iniciado correctamente")
+    print("Servidor iniciado correctamente")
 
 
 # ========== ENDPOINTS BASE ==========
@@ -107,13 +140,32 @@ async def global_exception_handler(request, exc):
 
 # ========== FUNCIÓN PARA EJECUTAR ==========
 
-def run():
-    """Función para ejecutar el servidor"""
+def run(host="0.0.0.0", port=8000, reload=None):
+    """Función para ejecutar el servidor
+    
+    Args:
+        host: Dirección IP donde escuchar (default: "0.0.0.0" para todas las interfaces)
+        port: Puerto donde escuchar (default: 8000)
+        reload: Activar auto-reload (default: None, se detecta automáticamente)
+    """
+    import os
+    
+    # Detectar si estamos en modo desarrollo o producción
+    if reload is None:
+        reload = os.getenv("ENVIRONMENT", "development") != "production"
+    
+    # Obtener configuración desde variables de entorno si están disponibles
+    host = os.getenv("HOST", host)
+    port = int(os.getenv("PORT", port))
+    
+    print(f"🚀 Iniciando servidor en http://{host}:{port}")
+    print(f"📚 Documentación disponible en http://{host}:{port}/docs")
+    
     uvicorn.run(
         "cod_backend.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,  # Auto-reload en desarrollo
+        host=host,
+        port=port,
+        reload=reload,
         log_level="info"
     )
 

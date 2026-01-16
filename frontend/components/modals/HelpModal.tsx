@@ -50,9 +50,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
             <div className="space-y-3 ml-13">
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-border">
-                <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mb-2">
-                  📋 Estructura requerida:
-                </p>
+                <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mb-2">📋 Estructura requerida:</p>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-orange-500 font-bold">•</span>
@@ -64,15 +62,22 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <li className="flex items-start gap-2">
                     <span className="text-orange-500 font-bold">•</span>
                     <span>
-                      <strong className="text-foreground">Columna 2 en adelante:</strong> Las preguntas con sus
-                      respuestas
+                      <strong className="text-foreground">Columna 2 (Pregunta):</strong> Respuestas de la pregunta abierta
+                      que quieres codificar
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-orange-500 font-bold">•</span>
                     <span>
                       <strong className="text-foreground">Encabezados:</strong> Los nombres de las columnas serán
-                      usados como nombres de preguntas
+                      usados como nombre de la pregunta
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-foreground">Recomendación:</strong> Usa un archivo por pregunta abierta para
+                      mantener el control y la interpretación de resultados sencilla
                     </span>
                   </li>
                 </ul>
@@ -90,25 +95,18 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                         <th className="border border-green-300 dark:border-green-700 px-2 py-1">
                           2. ¿Por qué seleccionó esta imagen?
                         </th>
-                        <th className="border border-green-300 dark:border-green-700 px-2 py-1">
-                          5. ¿Qué le transmite?
-                        </th>
                       </tr>
                     </thead>
                     <tbody className="text-muted-foreground">
                       <tr>
                         <td className="border border-green-300 dark:border-green-700 px-2 py-1">1</td>
                         <td className="border border-green-300 dark:border-green-700 px-2 py-1">Me gusta el color</td>
-                        <td className="border border-green-300 dark:border-green-700 px-2 py-1">
-                          Alegría y felicidad
-                        </td>
                       </tr>
                       <tr>
                         <td className="border border-green-300 dark:border-green-700 px-2 py-1">2</td>
                         <td className="border border-green-300 dark:border-green-700 px-2 py-1">
                           Es la más llamativa
                         </td>
-                        <td className="border border-green-300 dark:border-green-700 px-2 py-1">Energía positiva</td>
                       </tr>
                     </tbody>
                   </table>
@@ -196,6 +194,84 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <strong>⚠️ Nota:</strong> Si no proporcionas códigos anteriores, el sistema generará códigos nuevos
                   automáticamente.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dato Auxiliar */}
+          <div className="border border-border rounded-xl p-5 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/10 dark:to-background">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                <FileSpreadsheet className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">3. Dato Auxiliar (Opcional)</h3>
+            </div>
+
+            <div className="space-y-3 ml-13">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-border">
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">📋 ¿Qué es?</p>
+                <p className="text-sm text-muted-foreground mb-3">
+                  El dato auxiliar es una columna adicional (por ejemplo: satisfacción, recomendación, intención de compra)
+                  que ayuda al modelo a entender mejor el contexto de cada respuesta abierta.
+                </p>
+
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">📂 Cómo prepararlo:</p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-foreground">Columna 1 (ID):</strong> Igual que en el archivo de respuestas.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-foreground">Columna 2 (Dato auxiliar):</strong> Valores como{' '}
+                      <em>Bajo / Medio / Alto</em>, <em>Negativo / Neutro / Positivo</em>, o similares.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-foreground">Columna 3 (Pregunta abierta):</strong> Las respuestas que se van
+                      a codificar.
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">🧠 Cómo funciona:</p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      Marca la casilla <strong className="text-foreground">"Dato auxiliar"</strong> encima del archivo de
+                      respuestas cuando ya lo hayas cargado.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      El sistema detecta automáticamente la columna de dato auxiliar y te mostrará sus valores para que los
+                      categorices como <strong>negativos</strong>, <strong>neutrales</strong> o <strong>positivos</strong>.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      Si la casilla está marcada pero el archivo solo tiene 2 columnas (ID y respuesta), el sistema ignora
+                      el dato auxiliar y codifica normalmente con esas dos columnas.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <span>
+                      Si no marcas la casilla, el sistema siempre codifica usando solo <strong>ID</strong> y{' '}
+                      <strong>respuesta abierta</strong>.
+                    </span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>

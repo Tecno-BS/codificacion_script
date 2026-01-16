@@ -29,10 +29,34 @@ export function useCodification() {
   const reconectarProceso = useCallback(async (procesoId: string) => {
     try {
       const estado = await api.obtenerEstadoProceso(procesoId)
+      const completado =
+        (estado as any).completado ?? (estado.progreso_pct >= 100 && !estado.cancelado)
 
-      // Si el proceso está completado o cancelado, limpiar localStorage
-      if (estado.completado || estado.cancelado || estado.progreso_pct >= 100) {
+      // Si el proceso ya está completado, reconstruir resultados para que el usuario los vea tras recargar
+      if (completado) {
+        const statsSSE = estado.stats || null
+
+        setProcessing({
+          loading: false,
+          progress: 100,
+          message: '✅ Codificación completada',
+          error: null,
+        })
+
+        if (estado.archivo_resultados) {
+          setResults({
+            results: [],
+            totalRespuestas: estado.total_respuestas,
+            totalPreguntas: 0,
+            costoTotal: statsSSE?.costo_total ?? 0,
+            archivoResultados: estado.archivo_resultados,
+            archivoCodigos: estado.archivo_codigos_nuevos || undefined,
+            stats: statsSSE || undefined,
+          })
+        }
+
         localStorage.removeItem('proceso_activo_id')
+        setProcesoId(null)
         return
       }
 
@@ -77,9 +101,6 @@ export function useCodification() {
               message: mensajeError,
               error: mensajeError,
             }))
-            if (onError) {
-              onError(new Error(mensajeError))
-            }
             setProcesoId(null)
             localStorage.removeItem('proceso_activo_id')
             return

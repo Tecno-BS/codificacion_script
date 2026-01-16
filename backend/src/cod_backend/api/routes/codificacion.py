@@ -52,9 +52,9 @@ def limpiar_archivos_temporales(horas_antiguedad: int = 24):
         
         if archivos_eliminados > 0:
             espacio_mb = espacio_liberado / (1024 * 1024)
-            print(f"🧹 Limpieza automática: {archivos_eliminados} archivos eliminados ({espacio_mb:.2f} MB liberados)")
+            print(f" Limpieza automática: {archivos_eliminados} archivos eliminados ({espacio_mb:.2f} MB liberados)")
     except Exception as e:
-        print(f"⚠️  Error en limpieza automática: {e}")
+        print(f"Error en limpieza automática: {e}")
 
 
 async def ejecutar_codificacion_con_progreso(
@@ -72,7 +72,7 @@ async def ejecutar_codificacion_con_progreso(
         if not controlador:
             return
         
-        controlador.mensaje = "📤 Preparando archivos..."
+        controlador.mensaje = " Preparando archivos..."
         
         # Cargar datos para obtener el total (solo filas con respuesta no vacía)
         import pandas as pd
@@ -144,7 +144,7 @@ async def ejecutar_codificacion_con_progreso(
         )
         
         # Guardar resultados
-        controlador.mensaje = "💾 Guardando resultados..."
+        controlador.mensaje = "Guardando resultados..."
         nombre_base = Path(nombre_archivo).stem
         # 🆕 MEJORA 1: Incluir proceso_id en el nombre para mayor unicidad
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -192,7 +192,7 @@ async def ejecutar_codificacion_con_progreso(
         # Marcar como completado (100%)
         controlador.actualizar(
             respuestas_procesadas=total_respuestas,
-            mensaje="✅ Codificación completada exitosamente"
+            mensaje="Codificación completada exitosamente"
         )
         controlador.progreso_pct = 100
         
@@ -204,7 +204,7 @@ async def ejecutar_codificacion_con_progreso(
         
     except Exception as e:
         import traceback
-        print("❌ ERROR en ejecutar_codificacion_con_progreso:")
+        print("ERROR en ejecutar_codificacion_con_progreso:")
         traceback.print_exc()
 
         # Obtener mensaje de error descriptivo
@@ -215,7 +215,7 @@ async def ejecutar_codificacion_con_progreso(
 
         controlador = obtener_proceso(proceso_id)
         if controlador:
-            controlador.mensaje = f"❌ {mensaje_error}"
+            controlador.mensaje = f" {mensaje_error}"
             controlador.error = mensaje_error  # Guardar error para que el frontend lo reciba
             controlador.cancelar()
         
@@ -356,14 +356,14 @@ async def extraer_datos_auxiliares(
         datos_auxiliares = sorted(list(set(datos_auxiliares)))
         
         # Debug: imprimir para verificar
-        print(f"📊 Total de filas: {len(df)}")
-        print(f"📊 Primeras 5 filas completas:")
+        print(f" Total de filas: {len(df)}")
+        print(f" Primeras 5 filas completas:")
         for i in range(min(5, len(df))):
             print(f"   Fila {i}: ID={df.iloc[i, 0]}, Auxiliar={df.iloc[i, 1]}, Respuesta={df.iloc[i, 2]}")
-        print(f"📊 Columna B (Dato Auxiliar) - primeros 10 valores:")
+        print(f" Columna B (Dato Auxiliar) - primeros 10 valores:")
         for i in range(min(10, len(columna_auxiliar))):
             print(f"   [{i}]: {columna_auxiliar.iloc[i]}")
-        print(f"📊 Datos auxiliares únicos extraídos ({len(datos_auxiliares)}): {datos_auxiliares}")
+        print(f" Datos auxiliares únicos extraídos ({len(datos_auxiliares)}): {datos_auxiliares}")
         
         # Limpiar archivo temporal
         Path(tmp_path).unlink(missing_ok=True)
